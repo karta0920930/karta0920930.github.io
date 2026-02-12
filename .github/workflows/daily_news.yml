@@ -29,9 +29,11 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          # 強制清除本地可能衝突的未追蹤檔案
-          git clean -f data/
-          git pull --rebase origin main
+          
+          # 強制抓取雲端最新內容並覆蓋本地可能衝突的暫存檔
+          git fetch origin main
+          git checkout -f main
+          git reset --hard origin/main
 
       - name: 執行爬蟲腳本
         run: python Insurance_News.py
