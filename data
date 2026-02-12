@@ -1,1 +1,0 @@
-const response = await fetch('data/news_data.json');
