@@ -64,3 +64,27 @@ footer {
         padding: 20px 15px;
     }
 }
+/* 新聞列表樣式 */
+.news-list {
+    list-style: none;
+    padding: 0;
+}
+
+/* 分類標籤樣式 */
+.category-tag {
+    display: inline-block;
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+#news-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
