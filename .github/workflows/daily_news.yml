@@ -21,7 +21,7 @@ jobs:
           pip install requests beautifulsoup4 pandas matplotlib scikit-learn wordcloud openpyxl
 
       - name: 執行爬蟲腳本
-        run: Insurance_News.py  # 記得換成你的檔案名
+        run: python Insurance_News.py  # 記得換成你的檔案名
 
       - name: 提交並推送更新
         run: |
