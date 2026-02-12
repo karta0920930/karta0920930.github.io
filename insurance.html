@@ -1,42 +1,95 @@
-async function fetchNews() {
-    try {
-        // ✅ 修正路徑：指向 data 資料夾
-        // 加上 ?t= 參數是為了防止瀏覽器記住舊的快取，確保看到最新新聞
-        const response = await fetch('data/news_data.json?t=' + new Date().getTime()); 
-        
-        if (!response.ok) throw new Error('找不到新聞檔案');
-        
-        const data = await response.json();
-        const container = document.getElementById('news-container');
-        container.innerHTML = ''; 
-
-        if (data.length === 0) {
-            container.innerHTML = '<p>今日暫無相關保險新聞。</p>';
-            return;
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日保險新聞監測</title>
+    <style>
+        /* 1. 基礎設定：設定字體與背景 */
+        body {
+            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+            line-height: 1.8;
+            color: #333;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f8f9fa;
         }
 
-        const list = document.createElement('ul');
-        list.className = 'news-list';
+        /* 2. 導覽列美化 */
+        nav {
+            text-align: right;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
 
-        data.forEach(item => {
-            const listItem = document.createElement('li');
-            listItem.style.marginBottom = "15px";
-            listItem.innerHTML = `
-                <span class="category-tag" style="background:#eee; padding:2px 6px; border-radius:4px; font-size:12px; margin-right:8px;">${item.category}</span>
-                <a href="${item.link}" target="_blank" style="text-decoration:none; color:#0056b3; font-weight:bold;">
-                    ${item.title}
-                </a>
-                <small style="color:#666; margin-left:10px;">${item.date}</small>
-            `;
-            list.appendChild(listItem);
-        });
+        nav a {
+            color: #004080;
+            text-decoration: none;
+            font-weight: bold;
+        }
 
-        container.appendChild(list);
+        nav a:hover {
+            text-decoration: underline;
+        }
 
-    } catch (error) {
-        console.error('Error fetching news:', error);
-        document.getElementById('news-container').innerHTML = '<p>暫時無法取得新聞（請確認 data/news_data.json 是否已產生）。</p>';
-    }
-}
+        /* 3. 標題設計 */
+        h1 {
+            color: #002b5c;
+            border-left: 8px solid #002b5c;
+            padding-left: 15px;
+            margin-bottom: 10px;
+        }
 
-fetchNews();
+        h2 {
+            color: #004080;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 5px;
+            margin-top: 40px;
+        }
+
+        /* 4. 區塊設定 */
+        section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* 5. 新聞列表樣式 */
+        .news-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .news-item {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 分類標籤樣式 */
+        .category-tag {
+            display: inline-block;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-right: 12px;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .news-link {
+            text-decoration: none;
+            color: #0056b3;
+            font-weight: bold;
+            flex:
