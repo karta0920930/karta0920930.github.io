@@ -1,0 +1,33 @@
+name: Daily Insurance News Update
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 每天 UTC 00:00 (日本時間 09:00) 執行
+  workflow_dispatch: # 允許手動點擊按鈕執行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 檢出代碼
+        uses: actions/checkout@v3
+
+      - name: 設定 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: 安裝依賴套件
+        run: |
+          pip install requests beautifulsoup4 pandas matplotlib scikit-learn wordcloud openpyxl
+
+      - name: 執行爬蟲腳本
+        run: python your_script_name.py  # 記得換成你的檔案名
+
+      - name: 提交並推送更新
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Auto update news: $(date)" || exit 0
+          git push
