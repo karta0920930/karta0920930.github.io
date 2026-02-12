@@ -31,6 +31,8 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          # 先拉取遠端最新變更，避免衝突
+          git pull --rebase origin main
           git add .
           git commit -m "Auto update news: $(date)" || exit 0
-          git push
+          git push origin main
