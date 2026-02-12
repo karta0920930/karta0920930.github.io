@@ -4,7 +4,6 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
-# 加入這段：
 permissions:
   contents: write
 
@@ -14,6 +13,8 @@ jobs:
     steps:
       - name: 檢出代碼
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # 獲取完整歷史以利合併
 
       - name: 設定 Python
         uses: actions/setup-python@v4
@@ -22,25 +23,22 @@ jobs:
 
       - name: 安裝依賴套件
         run: |
-          pip install requests beautifulsoup4 pandas matplotlib scikit-learn wordcloud openpyxl
+          pip install requests beautifulsoup4 pandas openpyxl
 
-      - name: 執行爬蟲腳本
-        run: python Insurance_News.py  # 記得換成你的檔案名
-
-     - name: 提交並推送更新
+      - name: Git 前置同步
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
-          # 1. 先把雲端最新的內容抓下來
+          # 強制清除本地可能衝突的未追蹤檔案
+          git clean -f data/
           git pull --rebase origin main
-          
-          # 2. 執行你的 Python 程式 (確保它是跑在最新代碼之後)
-          python Insurance_News.py
-          
-          # 3. 把產出的資料加入 Git
+
+      - name: 執行爬蟲腳本
+        run: python Insurance_News.py
+
+      - name: 提交並推送更新
+        run: |
           git add data/
-          
-          # 4. 提交並推送
+          # 如果沒有檔案變動就跳過，避免報錯
           git commit -m "Auto update news: $(date)" || exit 0
           git push origin main
