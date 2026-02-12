@@ -27,17 +27,20 @@ jobs:
       - name: 執行爬蟲腳本
         run: python Insurance_News.py  # 記得換成你的檔案名
 
-      - name: 提交並推送更新
+     - name: 提交並推送更新
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # 關鍵步驟：先拉取遠端最新變更並合併
+          # 1. 先把雲端最新的內容抓下來
           git pull --rebase origin main
           
-          git add .
-          # 如果沒有變動就跳過 commit，避免報錯
-          git commit -m "Auto update news: $(date)" || exit 0
+          # 2. 執行你的 Python 程式 (確保它是跑在最新代碼之後)
+          python Insurance_News.py
           
-          # 推送回 main 分支
+          # 3. 把產出的資料加入 Git
+          git add data/
+          
+          # 4. 提交並推送
+          git commit -m "Auto update news: $(date)" || exit 0
           git push origin main
