@@ -31,10 +31,13 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          # 強制同步遠端最新的變更，避免衝突
-          git fetch origin main
-          git rebase origin/main
+          
+          # 關鍵步驟：先拉取遠端最新變更並合併
+          git pull --rebase origin main
+          
           git add .
-          # 如果沒有檔案變動就跳過，避免報錯
+          # 如果沒有變動就跳過 commit，避免報錯
           git commit -m "Auto update news: $(date)" || exit 0
+          
+          # 推送回 main 分支
           git push origin main
