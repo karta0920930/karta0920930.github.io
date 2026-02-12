@@ -1,21 +1,50 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <title>保險知識分享</title>
-    <link rel="stylesheet" href="style.css"> </head>
-<body>
-    <nav>
-        <a href="index.html">返回履歷首頁</a> | 
-        <strong>保險知識分享</strong>
-    </nav>
-
-    <section>
-        <h1>保險知識專欄</h1>
-        <article>
-            <h2>為什麼你需要規劃實支實付？</h2>
-            <p>保險知識內容撰寫處...</p>
-        </article>
+<section>
+        <h1>每日保險新聞 (自動更新)</h1>
+        <div id="news-container">
+            <p>正在加載最新新聞...</p>
+        </div>
     </section>
-</body>
-</html>
+
+    <script>
+        async function fetchNews() {
+            try {
+                // 指向你 GitHub 倉庫產生的 json 檔案路徑
+                const response = await fetch('news_data.json'); 
+                const data = await response.json();
+
+                const container = document.getElementById('news-container');
+                container.innerHTML = ''; // 清除加載中文字
+
+                if (data.length === 0) {
+                    container.innerHTML = '<p>今日暫無相關保險新聞。</p>';
+                    return;
+                }
+
+                // 建立表格或清單
+                const list = document.createElement('ul');
+                list.className = 'news-list';
+
+                data.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.style.marginBottom = "15px";
+                    listItem.innerHTML = `
+                        <span class="category-tag">${item.category}</span>
+                        <a href="${item.link}" target="_blank" style="text-decoration:none; color:#0056b3; font-weight:bold;">
+                            ${item.title}
+                        </a>
+                        <small style="color:#666; margin-left:10px;">${item.date}</small>
+                    `;
+                    list.appendChild(listItem);
+                });
+
+                container.appendChild(list);
+
+            } catch (error) {
+                console.error('Error fetching news:', error);
+                document.getElementById('news-container').innerHTML = '<p>暫時無法取得新聞，請稍後再試。</p>';
+            }
+        }
+
+        // 執行抓取
+        fetchNews();
+    </script>
