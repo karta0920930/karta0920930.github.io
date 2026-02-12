@@ -14,7 +14,7 @@ jobs:
       - name: 檢出代碼
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # 獲取完整歷史以利合併
+          fetch-depth: 0  # 取得完整歷史紀錄
 
       - name: 設定 Python
         uses: actions/setup-python@v4
@@ -25,22 +25,21 @@ jobs:
         run: |
           pip install requests beautifulsoup4 pandas openpyxl
 
-      - name: Git 前置同步
+      - name: 強制同步並執行
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # 強制抓取雲端最新內容並覆蓋本地可能衝突的暫存檔
+          # 關鍵：強制重置到雲端最新狀態，清除所有衝突檔案
           git fetch origin main
-          git checkout -f main
           git reset --hard origin/main
-
-      - name: 執行爬蟲腳本
-        run: python Insurance_News.py
+          
+          # 同步完後才執行爬蟲
+          python Insurance_News.py
 
       - name: 提交並推送更新
         run: |
           git add data/
-          # 如果沒有檔案變動就跳過，避免報錯
+          # 檢查是否有變動，避免 commit 失敗導致流程顯示紅字
           git commit -m "Auto update news: $(date)" || exit 0
           git push origin main
