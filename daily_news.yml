@@ -1,5 +1,4 @@
-name: Daily Insurance News Update
-
+name: Insurance_News Updates
 on:
   schedule:
     - cron: '0 0 * * *' # 每天 UTC 00:00 (日本時間 09:00) 執行
@@ -22,7 +21,7 @@ jobs:
           pip install requests beautifulsoup4 pandas matplotlib scikit-learn wordcloud openpyxl
 
       - name: 執行爬蟲腳本
-        run: python your_script_name.py  # 記得換成你的檔案名
+        run: Insurance_News.py  # 記得換成你的檔案名
 
       - name: 提交並推送更新
         run: |
