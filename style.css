@@ -1,30 +1,66 @@
+/* 1. 基礎設定：設定字體與背景 */
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f4f4f4;
+    font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; /* 使用現代感的字體 */
+    line-height: 1.8;
     color: #333;
+    max-width: 850px; /* 限制寬度，讓閱讀更舒服 */
+    margin: 0 auto;   /* 網頁置中 */
+    padding: 40px 20px;
+    background-color: #f8f9fa; /* 淡淡的灰色背景 */
 }
 
-header {
-    text-align: center;
-    background: #2c3e50;
-    color: white;
-    padding: 2rem;
-    border-radius: 8px;
+/* 2. 導覽列美化 */
+nav {
+    text-align: right;
+    margin-bottom: 30px;
+    font-size: 0.9em;
 }
 
-section {
-    background: white;
-    margin: 20px 0;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+nav a {
+    color: #004080; /* 深藍色 */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline; /* 滑鼠移上去有下底線 */
+}
+
+/* 3. 標題設計 */
+h1 {
+    color: #002b5c; /* 經典金融藍 */
+    border-left: 8px solid #002b5c;
+    padding-left: 15px;
+    margin-bottom: 10px;
 }
 
 h2 {
-    color: #2c3e50;
-    border-bottom: 2px solid #2c3e50;
+    color: #004080;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 5px;
+    margin-top: 40px;
+}
+
+/* 4. 區塊設定 */
+section {
+    background: white;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 8px; /* 圓角設計 */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* 輕微陰影，增加立體感 */
+}
+
+/* 5. 頁尾設計 */
+footer {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 0.8em;
+    color: #777;
+}
+
+/* 響應式設計：讓手機看也漂亮 */
+@media (max-width: 600px) {
+    body {
+        padding: 20px 15px;
+    }
 }
