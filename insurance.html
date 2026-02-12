@@ -92,4 +92,107 @@
             text-decoration: none;
             color: #0056b3;
             font-weight: bold;
-            flex:
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .news-link:hover {
+            text-decoration: underline;
+        }
+
+        .news-date {
+            color: #999;
+            font-size: 0.85em;
+            margin-left: 15px;
+        }
+
+        /* 頁尾設計 */
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.8em;
+            color: #777;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 15px;
+            }
+            .news-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .news-date {
+                margin-left: 0;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html">返回首頁</a>
+    </nav>
+
+    <section>
+        <h1>每日保險新聞 (自動更新)</h1>
+        <div id="news-container">
+            <p>正在從資料庫加載最新新聞...</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 保險監測系統 | 自動更新於每日 08:00 (GMT+8)</p>
+    </footer>
+
+    <script>
+        async function fetchNews() {
+            try {
+                // 指向 data 資料夾下的 JSON 檔案，加上時間戳防止快取
+                const response = await fetch('data/news_data.json?t=' + new Date().getTime());
+                
+                if (!response.ok) throw new Error('找不到新聞檔案');
+                
+                const data = await response.json();
+                const container = document.getElementById('news-container');
+                container.innerHTML = ''; 
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p>今日暫無相關保險新聞。</p>';
+                    return;
+                }
+
+                const list = document.createElement('ul');
+                list.className = 'news-list';
+
+                data.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'news-item';
+                    
+                    listItem.innerHTML = `
+                        <span class="category-tag">${item.category || '保險'}</span>
+                        <a href="${item.link}" target="_blank" class="news-link">
+                            ${item.title}
+                        </a>
+                        <span class="news-date">${item.date}</span>
+                    `;
+                    list.appendChild(listItem);
+                });
+
+                container.appendChild(list);
+
+            } catch (error) {
+                console.error('Error fetching news:', error);
+                document.getElementById('news-container').innerHTML = 
+                    '<p style="color:#d9534f; padding: 10px; background: #fdf7f7; border-radius: 4px;">' +
+                    '⚠️ 暫時無法讀取新聞資料。<br><small>請確認 data/news_data.json 是否已透過 GitHub Actions 產生。</small></p>';
+            }
+        }
+
+        // 頁面開啟後執行
+        fetchNews();
+    </script>
+</body>
+</html>
