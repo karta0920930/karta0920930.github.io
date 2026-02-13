@@ -57,29 +57,38 @@ def get_taiwan_news():
 # 3. 爬取日本新聞 (日經新聞)
 # =========================
 def get_japan_news():
-    print("🔎 抓取日本新聞...")
-    url = "https://www.nikkei.com/search?keyword=%E4%BF%9D%E9%99%BA"
+    print("🔎 抓取日本精準保險新聞...")
+    url = "https://www.nikkei.com/search?keyword=%E4%BF%9D%E9%99%BA%E6%A5%AD%E7%95%8C+%E7%94%9F%E5%91%BD%E4%BF%9D%E9%99%BA"
     articles = []
     try:
         response = requests.get(url, headers=HEADERS, timeout=15)
         soup = BeautifulSoup(response.text, "html.parser")
         
-        links = soup.find_all("a")
-        for link in links:
-            title = link.get_text(strip=True)
-            href = link.get('href')
+        # 修正：定位日經搜尋結果的文章卡片區塊
+        # 日經的文章標題通常被包裹在 article 或特定 class 的 div 中
+        items = soup.select('article') or soup.select('.search__item')
+        
+        for item in items:
+            # 優先抓取標題所在的標籤 (通常是 h3 或特定帶標題屬性的 span)
+            title_tag = item.select_one('h3') or item.select_one('a span')
+            link_tag = item.select_one('a')
             
-            # 日經新聞標題通常較長且包含關鍵字
-            if href and "保険" in title and len(title) > 15:
-                full_link = href if href.startswith('http') else "https://www.nikkei.com" + href
+            if title_tag and link_tag:
+                title = title_tag.get_text(strip=True)
+                href = link_tag.get('href')
                 
-                articles.append({
-                    "title": title,
-                    "link": full_link,
-                    "date": TODAY_STR,
-                    "source": "日本新聞"
-                })
-                if len(articles) >= 20: break
+                # 排除過短、過長或包含過多內文的雜質
+                # 真正的標題通常在 20~60 字之間
+                if "保険" in title and 15 < len(title) < 70:
+                    full_link = href if href.startswith('http') else "https://www.nikkei.com" + href
+                    
+                    articles.append({
+                        "title": title, 
+                        "link": full_link, 
+                        "date": TODAY_STR, 
+                        "source": "日本新聞"
+                    })
+            if len(articles) >= 20: break
     except Exception as e:
         print(f"❌ 日本抓取錯誤: {e}")
     return articles
