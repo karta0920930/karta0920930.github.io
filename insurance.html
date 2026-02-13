@@ -173,9 +173,16 @@
                     return;
                 }
 
-                // --- 核心邏輯：根據 source 欄位分類 ---
-                const taiwanNews = data.filter(item => item.source === "台灣新聞");
-                const japanNews = data.filter(item => item.source === "日本新聞");
+                // --- 智慧分類邏輯 ---
+                // 1. 日本新聞：欄位是"日本新聞" OR 標題包含日文字符
+                const japanNews = data.filter(item => 
+                    item.source === "日本新聞" || /[ぁ-んァ-ン]/.test(item.title)
+                );
+                
+                // 2. 台灣新聞：欄位是"台灣新聞" OR (標題沒有日文字符)
+                const taiwanNews = data.filter(item => 
+                    item.source === "台灣新聞" || (!item.source && !/[ぁ-んァ-ン]/.test(item.title))
+                );
 
                 // 建立渲染函式
                 const renderGroup = (groupTitle, icon, newsItems) => {
@@ -190,8 +197,12 @@
                     newsItems.forEach(item => {
                         const li = document.createElement('li');
                         li.className = 'news-item';
+                        
+                        // 自動抓取標籤名稱，優先序：來源 > 分類 > 預設
+                        const tagText = item.source || item.category || "最新動態";
+                        
                         li.innerHTML = `
-                            <span class="category-tag">${item.source}</span>
+                            <span class="category-tag">${tagText}</span>
                             <a href="${item.link}" target="_blank" class="news-link">
                                 ${item.title}
                             </a>
