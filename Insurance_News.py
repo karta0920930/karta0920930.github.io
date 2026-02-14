@@ -58,21 +58,24 @@ def get_taiwan_news():
 # =========================
 def get_japan_news():
     print("🔎 嘗試抓取日本保險新聞 (Google News RSS)...")
-    # 搜尋關鍵字：保険 (Insurance)
     rss_url = "https://news.google.com/rss/search?q=%E4%BF%9D%E9%99%BA&hl=ja&gl=JP&ceid=JP%3Aja"
     articles = []
     try:
         response = requests.get(rss_url, headers=HEADERS, timeout=15)
-        # 使用 html.parser 解析 RSS (雖然是 XML，但內建 parser 也能處理基本標籤)
-        soup = BeautifulSoup(response.text, "html.parser")
+        # 關鍵修正：RSS 是 XML 格式，我們直接用 find_all('item')
+        soup = BeautifulSoup(response.content, "xml") # 如果這行報錯，改用 "html.parser"
         items = soup.find_all("item")
         
         for item in items:
-            title = item.title.text
-            link = item.link.text
+            title = item.title.text if item.title else "無標題"
+            # 關鍵修正：嘗試多種方式獲取連結
+            link = ""
+            if item.link:
+                link = item.link.text
+            elif item.find("link"):
+                link = item.find("link").next_sibling.strip()
             
-            # 簡單過濾：確保標題夠長，避開導覽文字
-            if len(title) > 10:
+            if link and len(title) > 10:
                 articles.append({
                     "title": title,
                     "link": link,
@@ -83,7 +86,21 @@ def get_japan_news():
             
         print(f"✅ 成功抓到 {len(articles)} 則日本新聞")
     except Exception as e:
-        print(f"❌ 日本 RSS 抓取錯誤: {e}")
+        # 如果 "xml" 解析器失敗，換成 "html.parser" 的保險寫法
+        print(f"⚠️ XML 解析失敗，嘗試相容模式... Error: {e}")
+        soup = BeautifulSoup(response.text, "html.parser")
+        items = soup.find_all("item")
+        for item in items:
+            # 在 html.parser 下，標籤會變小寫
+            t = item.find("title")
+            l = item.find("link")
+            if t and l:
+                articles.append({
+                    "title": t.get_text(),
+                    "link": l.next_sibling.strip() if l.next_sibling else l.get_text(),
+                    "date": TODAY_STR,
+                    "source": "日本新聞"
+                })
     return articles
 
 # =========================
