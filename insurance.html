@@ -194,16 +194,20 @@
                     const list = document.createElement('ul');
                     list.className = 'news-list';
 
-                    newsItems.forEach(item => {
+                   newsItems.forEach(item => {
                         const li = document.createElement('li');
                         li.className = 'news-item';
                         
                         const tagText = item.source || item.category || "最新動態";
                         
-                        // 核心修正：確保 a 標籤屬性完整且無異常空格
+                        // 這裡使用 onclick 確保即便 a 標籤解析有誤，也能透過 JS 強制跳轉
                         li.innerHTML = `
                             <span class="category-tag">${tagText}</span>
-                            <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="news-link">
+                            <a href="${item.link}" 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               class="news-link"
+                               onclick="window.open('${item.link}', '_blank'); return false;">
                                 ${item.title}
                             </a>
                             <span class="news-date">${item.date}</span>
