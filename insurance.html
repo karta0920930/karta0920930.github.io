@@ -195,25 +195,25 @@
                     list.className = 'news-list';
 
                    newsItems.forEach(item => {
-                        const li = document.createElement('li');
-                        li.className = 'news-item';
-                        
-                        const tagText = item.source || item.category || "最新動態";
-                        
-                        // 這裡使用 onclick 確保即便 a 標籤解析有誤，也能透過 JS 強制跳轉
-                        li.innerHTML = `
-                            <span class="category-tag">${tagText}</span>
-                            <a href="${item.link}" 
-                               target="_blank" 
-                               rel="noopener noreferrer" 
-                               class="news-link"
-                               onclick="window.open('${item.link}', '_blank'); return false;">
-                                ${item.title}
-                            </a>
-                            <span class="news-date">${item.date}</span>
-                        `;
-                        list.appendChild(li);
-                    });
+                    const li = document.createElement('li');
+                    li.className = 'news-item';
+    
+                    const tagText = item.source || item.category || "最新動態";
+    
+                    // 確保這裡只有一個 <a> 標籤，並且屬性乾淨
+                    li.innerHTML = `
+                        <span class="category-tag">${tagText}</span>
+                        <a href="${item.link}" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="news-link"
+                           onclick="window.open('${item.link}', '_blank'); return false;">
+                            ${item.title}
+                        </a>
+                        <span class="news-date">${item.date}</span>
+                    `;
+                    list.appendChild(li);
+                });
 
                     groupWrapper.appendChild(list);
                     container.appendChild(groupWrapper);
