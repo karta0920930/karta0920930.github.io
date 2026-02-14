@@ -201,13 +201,12 @@
                         // 自動抓取標籤名稱，優先序：來源 > 分類 > 預設
                         const tagText = item.source || item.category || "最新動態";
                         
-                        li.innerHTML = `
-                            <span class="category-tag">${tagText}</span>
-                            <a href="${item.link}" target="_blank" class="news-link">
-                                ${item.title}
-                            </a>
-                            <span class="news-date">${item.date}</span>
-                        `;
+                       li.innerHTML = `
+                    <span class="category-tag">${tagText}</span>
+                    <a href="${item.link}" target="_blank" class="news-link">  ${item.title}
+                    </a>
+                    <span class="news-date">${item.date}</span>
+                `;
                         list.appendChild(li);
                     });
 
