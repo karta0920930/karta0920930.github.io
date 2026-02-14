@@ -57,40 +57,33 @@ def get_taiwan_news():
 # 3. 爬取日本新聞 (日經新聞)
 # =========================
 def get_japan_news():
-    print("🔎 抓取日本精準保險新聞...")
-    url = "https://www.nikkei.com/search?keyword=%E4%BF%9D%E9%99%BA%E6%A5%AD%E7%95%8C+%E7%94%9F%E5%91%BD%E4%BF%9D%E9%99%BA"
+    print("🔎 嘗試抓取日本保險新聞 (Google News RSS)...")
+    # 搜尋關鍵字：保険 (Insurance)
+    rss_url = "https://news.google.com/rss/search?q=%E4%BF%9D%E9%99%BA&hl=ja&gl=JP&ceid=JP%3Aja"
     articles = []
     try:
-        response = requests.get(url, headers=HEADERS, timeout=15)
+        response = requests.get(rss_url, headers=HEADERS, timeout=15)
+        # 使用 html.parser 解析 RSS (雖然是 XML，但內建 parser 也能處理基本標籤)
         soup = BeautifulSoup(response.text, "html.parser")
-        
-        # 修正：定位日經搜尋結果的文章卡片區塊
-        # 日經的文章標題通常被包裹在 article 或特定 class 的 div 中
-        items = soup.select('article') or soup.select('.search__item')
+        items = soup.find_all("item")
         
         for item in items:
-            # 優先抓取標題所在的標籤 (通常是 h3 或特定帶標題屬性的 span)
-            title_tag = item.select_one('h3') or item.select_one('a span')
-            link_tag = item.select_one('a')
+            title = item.title.text
+            link = item.link.text
             
-            if title_tag and link_tag:
-                title = title_tag.get_text(strip=True)
-                href = link_tag.get('href')
-                
-                # 排除過短、過長或包含過多內文的雜質
-                # 真正的標題通常在 20~60 字之間
-                if "保険" in title and 15 < len(title) < 70:
-                    full_link = href if href.startswith('http') else "https://www.nikkei.com" + href
-                    
-                    articles.append({
-                        "title": title, 
-                        "link": full_link, 
-                        "date": TODAY_STR, 
-                        "source": "日本新聞"
-                    })
-            if len(articles) >= 20: break
+            # 簡單過濾：確保標題夠長，避開導覽文字
+            if len(title) > 10:
+                articles.append({
+                    "title": title,
+                    "link": link,
+                    "date": TODAY_STR,
+                    "source": "日本新聞"
+                })
+            if len(articles) >= 15: break
+            
+        print(f"✅ 成功抓到 {len(articles)} 則日本新聞")
     except Exception as e:
-        print(f"❌ 日本抓取錯誤: {e}")
+        print(f"❌ 日本 RSS 抓取錯誤: {e}")
     return articles
 
 # =========================
