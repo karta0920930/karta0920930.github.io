@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學術研究監測 | Insurance Papers</title>
+    <style>
+        body {
+            font-family: "Times New Roman", "Songti TC", serif; /* 學術風字體 */
+            background-color: #fdfdfb;
+            color: #2c3e50;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        nav { margin-bottom: 30px; font-family: sans-serif; }
+        h1 { border-bottom: 2px solid #2c3e50; padding-bottom: 10px; font-size: 2.2em; }
+        .paper-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e1e8ed;
+            transition: all 0.3s ease;
+        }
+        .paper-card:hover { border-left: 5px solid #1a56db; box-shadow: 2px 2px 10px rgba(0,0,0,0.05); }
+        .paper-title {
+            font-size: 1.25em;
+            color: #1a56db;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .paper-meta { font-size: 0.9em; color: #7f8c8d; }
+        .journal-tag {
+            background: #2c3e50;
+            color: white;
+            padding: 2px 8px;
+            font-size: 0.8em;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <nav><a href="index.html" style="text-decoration: none; color: #7f8c8d;">← 返回首頁</a></nav>
+    <header>
+        <h1>Insurance Research Monitor</h1>
+        <p>自動監測全球風險管理與保險精算之最新期刊論文</p>
+    </header>
+
+    <div id="paper-list">讀取中...</div>
+
+    <script>
+        async function loadPapers() {
+            try {
+                const response = await fetch('data/paper_data.json?t=' + Date.now());
+                const papers = await response.json();
+                const container = document.getElementById('paper-list');
+                container.innerHTML = '';
+
+                papers.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'paper-card';
+                    card.innerHTML = `
+                        <a href="${p.link}" target="_blank" class="paper-title">${p.title}</a>
+                        <div class="paper-meta">
+                            <span class="journal-tag">${p.journal}</span>
+                            <span>📅 Published: ${p.date}</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (e) {
+                document.getElementById('paper-list').innerHTML = "目前暫無更新。";
+            }
+        }
+        loadPapers();
+    </script>
+</body>
+</html>
