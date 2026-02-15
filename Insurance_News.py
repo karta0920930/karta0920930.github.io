@@ -57,50 +57,45 @@ def get_taiwan_news():
 # 3. 爬取日本新聞 (日經新聞)
 # =========================
 def get_japan_news():
-    print("🔎 嘗試抓取日本保險新聞 (Google News RSS)...")
-    rss_url = "https://news.google.com/rss/search?q=%E4%BF%9D%E9%99%BA&hl=ja&gl=JP&ceid=JP%3Aja"
+    print("🔎 正在精確抓取日本保險產業新聞...")
+    # 1. 優化搜尋關鍵字：搜尋「保險業」或「保險公司」相關，排除雜質
+    # 關鍵字：保険業界 OR 生命保険 OR 損害保険
+    rss_url = "https://news.google.com/rss/search?q=%22%E4%BF%9D%E9%99%BA%E6%A5%AD%E7%95%8C%22%20OR%20%22%E7%94%9F%E5%91%BD%E4%BF%9D%E9%99%BA%22%20OR%20%22%E6%90%8D%E5%AE%B3%E4%BF%9D%E9%99%BA%22&hl=ja&gl=JP&ceid=JP%3Aja"
+    
     articles = []
+    # 定義日本新聞的黑名單，過濾掉不相關的內容
+    JP_BLACKLIST = ["保険套","保険証"]
+
     try:
         response = requests.get(rss_url, headers=HEADERS, timeout=15)
-        # 關鍵修正：RSS 是 XML 格式，我們直接用 find_all('item')
-        soup = BeautifulSoup(response.content, "xml") # 如果這行報錯，改用 "html.parser"
+        soup = BeautifulSoup(response.content, "xml")
         items = soup.find_all("item")
         
         for item in items:
-            title = item.title.text if item.title else "無標題"
-            # 關鍵修正：嘗試多種方式獲取連結
-            link = ""
-            if item.link:
-                link = item.link.text
-            elif item.find("link"):
-                link = item.find("link").next_sibling.strip()
+            title = item.title.text
+            link = item.link.text
             
-            if link and len(title) > 10:
+            # 2. 多重過濾邏輯
+            # A. 檢查是否在黑名單
+            if any(word in title for word in JP_BLACKLIST):
+                continue
+            
+            # B. 檢查是否包含核心關鍵字
+            # C. 標題長度過濾 (太短的通常是導覽或標籤)
+            if len(title) > 15:
                 articles.append({
                     "title": title,
                     "link": link,
                     "date": TODAY_STR,
                     "source": "日本新聞"
                 })
-            if len(articles) >= 15: break
             
-        print(f"✅ 成功抓到 {len(articles)} 則日本新聞")
+            # 3. 數量限制：只取前 8 則最相關的
+            if len(articles) >= 8: break
+            
+        print(f"✅ 成功抓取 {len(articles)} 則精準日本新聞")
     except Exception as e:
-        # 如果 "xml" 解析器失敗，換成 "html.parser" 的保險寫法
-        print(f"⚠️ XML 解析失敗，嘗試相容模式... Error: {e}")
-        soup = BeautifulSoup(response.text, "html.parser")
-        items = soup.find_all("item")
-        for item in items:
-            # 在 html.parser 下，標籤會變小寫
-            t = item.find("title")
-            l = item.find("link")
-            if t and l:
-                articles.append({
-                    "title": t.get_text(),
-                    "link": l.next_sibling.strip() if l.next_sibling else l.get_text(),
-                    "date": TODAY_STR,
-                    "source": "日本新聞"
-                })
+        print(f"❌ 日本精準抓取錯誤: {e}")
     return articles
 #3.5 論文定期更新
 #
