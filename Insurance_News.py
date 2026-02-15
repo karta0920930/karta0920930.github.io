@@ -26,6 +26,7 @@ def get_taiwan_news():
     # 抓取 Yahoo 搜尋「保險」的最新新聞結果
     url = "https://tw.news.yahoo.com/search?p=%E4%BF%9D%E9%9A%AA&fr=news"
     articles = []
+    TW_BLACKLIST = ["保險套",  "廣告", "發財"]
     try:
         response = requests.get(url, headers=HEADERS, timeout=15)
         soup = BeautifulSoup(response.text, "html.parser")
@@ -35,21 +36,34 @@ def get_taiwan_news():
         for item in items:
             title_tag = item.find("a")
             if title_tag:
-                title = title_tag.get_text(strip=True)
+                raw_title = title_tag.get_text(strip=True)
                 href = title_tag.get('href')
                 
-                # 確保連結完整且標題長度合理
-                if href and len(title) > 8:
+                # --- 抓重點邏輯 1：移除來源字樣 ---
+                # 很多標題會長這樣：「保險業獲利創新高 - Yahoo奇摩新聞」
+                # 我們只取 '-' 或是 '|' 之前的內容
+                clean_title = raw_title.split(' - ')[0].split(' | ')[0].split(' (')[0]
+
+                # --- 抓重點邏輯 2：過濾 ---
+                if any(word in clean_title for word in TW_BLACKLIST):
+                    continue
+
+                if href and len(clean_title) > 10:
                     if not href.startswith('http'):
                         href = "https://tw.news.yahoo.com" + href
                     
                     articles.append({
-                        "title": title,
+                        "title": clean_title, # 使用清理後的重點標題
                         "link": href,
                         "date": TODAY_STR,
                         "source": "台灣新聞"
                     })
-            if len(articles) >= 15: break
+            
+            # --- 數量限制：限 10 則 ---
+            if len(articles) >= 10:
+                break
+                
+        print(f"✅ 台灣新聞更新完成，共 {len(articles)} 則精華。")
     except Exception as e:
         print(f"❌ 台灣抓取錯誤: {e}")
     return articles
@@ -67,7 +81,7 @@ def get_japan_news():
     
     articles = []
     # 精確黑名單
-    JP_BLACKLIST = ["保険套", "社会保険", "雇用保険", "健康保険", "保険料控除"]
+    JP_BLACKLIST = ["保険套", "保険証"]
 
     try:
         response = requests.get(rss_url, headers=HEADERS, timeout=15)
