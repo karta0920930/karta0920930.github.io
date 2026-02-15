@@ -4,7 +4,8 @@ import pandas as pd
 import datetime
 import os
 import json
-
+import warnings
+from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 # =========================
 # 1. 基本設定
 # =========================
@@ -56,46 +57,58 @@ def get_taiwan_news():
 # =========================
 # 3. 爬取日本新聞 (日經新聞)
 # =========================
+# 忽略討厭的警告訊息
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+
 def get_japan_news():
-    print("🔎 正在精確抓取日本保險產業新聞...")
-    # 1. 優化搜尋關鍵字：搜尋「保險業」或「保險公司」相關，排除雜質
-    # 關鍵字：保険業界 OR 生命保険 OR 損害保険
+    print("🔎 正在精確抓取日本保險產業新聞 (穩定限制版)...")
+    # 搜尋關鍵字：確保精準對準業界與壽險/損害保險
     rss_url = "https://news.google.com/rss/search?q=%22%E4%BF%9D%E9%99%BA%E6%A5%AD%E7%95%8C%22%20OR%20%22%E7%94%9F%E5%91%BD%E4%BF%9D%E9%99%BA%22%20OR%20%22%E6%90%8D%E5%AE%B3%E4%BF%9D%E9%99%BA%22&hl=ja&gl=JP&ceid=JP%3Aja"
     
     articles = []
-    # 定義日本新聞的黑名單，過濾掉不相關的內容
-    JP_BLACKLIST = ["保険套","保険証"]
+    # 精確黑名單
+    JP_BLACKLIST = ["保険套", "社会保険", "雇用保険", "健康保険", "保険料控除"]
 
     try:
         response = requests.get(rss_url, headers=HEADERS, timeout=15)
-        soup = BeautifulSoup(response.content, "xml")
+        # 既然沒有 lxml，我們就統一用 html.parser，但調整抓取標籤的寫法
+        soup = BeautifulSoup(response.text, "html.parser")
+        
+        # 在 html.parser 之下，XML 的 <item> 會被識別為 <item></item>
         items = soup.find_all("item")
         
         for item in items:
-            title = item.title.text
-            link = item.link.text
+            # 嘗試抓取標題與連結
+            title_tag = item.find("title")
+            link_tag = item.find("link")
             
-            # 2. 多重過濾邏輯
-            # A. 檢查是否在黑名單
-            if any(word in title for word in JP_BLACKLIST):
-                continue
+            if title_tag and link_tag:
+                title = title_tag.get_text()
+                # 處理 Google News RSS 特有的連結讀取問題
+                link = link_tag.next_sibling if link_tag.next_sibling and "http" in str(link_tag.next_sibling) else link_tag.get_text()
+                link = str(link).strip()
+
+                # 過濾邏輯
+                if any(word in title for word in JP_BLACKLIST):
+                    continue
+                
+                # 標題長度檢查且必須包含核心詞彙
+                if len(title) > 15 and "保険" in title:
+                    articles.append({
+                        "title": title,
+                        "link": link,
+                        "date": TODAY_STR,
+                        "source": "日本新聞"
+                    })
             
-            # B. 檢查是否包含核心關鍵字
-            # C. 標題長度過濾 (太短的通常是導覽或標籤)
-            if len(title) > 15:
-                articles.append({
-                    "title": title,
-                    "link": link,
-                    "date": TODAY_STR,
-                    "source": "日本新聞"
-                })
-            
-            # 3. 數量限制：只取前 8 則最相關的
-            if len(articles) >= 8: break
-            
-        print(f"✅ 成功抓取 {len(articles)} 則精準日本新聞")
+            # 🔴 強制煞車：最多只拿 10 則，絕對不再噴 100 則
+            if len(articles) >= 10:
+                break
+                
+        print(f"✅ 更新完成！成功篩選出 {len(articles)} 則日本精華新聞。")
     except Exception as e:
-        print(f"❌ 日本精準抓取錯誤: {e}")
+        print(f"❌ 日本抓取失敗: {e}")
+        
     return articles
 #3.5 論文定期更新
 #
