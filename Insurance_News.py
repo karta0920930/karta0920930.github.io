@@ -102,14 +102,38 @@ def get_japan_news():
                     "source": "日本新聞"
                 })
     return articles
+#3.5 論文定期更新
+#
+#
+def get_journal_papers():
+    print("🔎 正在檢索 Journal of Risk and Insurance 最新論文...")
+    # 使用 Google News RSS 搜尋學術期刊更新，這對 GitHub Actions 最穩定
+    rss_url = "https://news.google.com/rss/search?q=source:%22Journal+of+Risk+and+Insurance%22&hl=en-US&gl=US&ceid=US:en"
+    papers = []
+    try:
+        response = requests.get(rss_url, headers=HEADERS, timeout=15)
+        soup = BeautifulSoup(response.content, "xml")
+        items = soup.find_all("item")
 
+        for item in items:
+            papers.append({
+                "title": item.title.text,
+                "link": item.link.text,
+                "date": item.pubDate.text if item.pubDate else TODAY_STR,
+                "journal": "JRI"
+            })
+            if len(papers) >= 10: break
+        print(f"✅ 成功抓取 {len(papers)} 篇最新論文")
+    except Exception as e:
+        print(f"❌ 論文抓取失敗: {e}")
+    return papers
 # =========================
 # 4. 執行與儲存
 # =========================
 def main():
     tw_news = get_taiwan_news()
     jp_news = get_japan_news()
-    
+    papers = get_journal_papers()
     all_news = tw_news + jp_news
     
     # 移除重複標題
@@ -131,6 +155,8 @@ def main():
         json.dump(all_news, f, ensure_ascii=False, indent=4)
         
     print(f"✅ 更新完成！抓到 {len(tw_news)} 則台灣新聞，{len(jp_news)} 則日本新聞。")
-
+    # 儲存論文資料
+    with open(os.path.join(OUTPUT_DIR, "paper_data.json"), 'w', encoding='utf-8') as f:
+        json.dump(papers, f, ensure_ascii=False, indent=4)
 if __name__ == "__main__":
     main()
