@@ -128,43 +128,52 @@ def get_japan_news():
 #
 #
 def get_journal_papers():
-    print("🔎 正在檢索 Journal of Risk and Insurance 最新論文...")
-    # 使用 Google News RSS
-    rss_url = "https://news.google.com/rss/search?q=source:%22Journal+of+Risk+and+Insurance%22&hl=en-US&gl=US&ceid=US:en"
-    papers = []
-    try:
-        response = requests.get(rss_url, headers=HEADERS, timeout=15)
-        
-        # 修正點：使用 html.parser 代替 xml
-        soup = BeautifulSoup(response.text, "html.parser")
-        items = soup.find_all("item")
+    journals = [
+        "Journal of Financial Economics", "Journal of Banking and Finance", 
+        "Journal of Corporate Finance", "Journal of Japanese International Economy",
+        "Journal of Money, Credit and Banking", "Journal of Financial and Quantitative Analysis",
+        "Review of Financial Studies"
+    ]
+    
+    all_papers = []
+    print(f"🔎 開始監測 {len(journals)} 本金融頂刊...")
 
-        for item in items:
-            # 在 html.parser 下，標籤名通常會被處理為小寫
-            title_tag = item.find("title")
-            link_tag = item.find("link")
-            pubdate_tag = item.find("pubdate") # RSS 的 pubDate 會變成 pubdate
-            
-            if title_tag and link_tag:
-                # 處理連結：Google News RSS 的 link 標籤處理方式
-                link = link_tag.next_sibling if link_tag.next_sibling and "http" in str(link_tag.next_sibling) else link_tag.get_text()
-                
-                papers.append({
-                    "title": title_tag.get_text(),
-                    "link": str(link).strip(),
-                    "date": pubdate_tag.get_text() if pubdate_tag else TODAY_STR,
-                    "journal": "JRI"
-                })
-            
-            if len(papers) >= 10: break
-            
-        print(f"✅ 成功抓取 {len(papers)} 篇最新論文")
-    except Exception as e:
-        print(f"❌ 論文抓取失敗: {e}")
-        # 如果還是失敗，回傳空列表，避免 main() 存檔時報錯
-        papers = []
+    for j in journals:
+        # 使用 Google News RSS 針對特定期刊搜尋標題
+        # 加上 intitle: 確保抓到的是論文標題而非新聞報導
+        rss_url = f"https://news.google.com/rss/search?q=intitle:%22{j.replace(' ', '+')}%22&hl=en-US&gl=US&ceid=US:en"
         
-    return papers
+        try:
+            response = requests.get(rss_url, headers=HEADERS, timeout=15)
+            soup = BeautifulSoup(response.text, "html.parser")
+            items = soup.find_all("item")
+
+            count = 0
+            for item in items:
+                title_tag = item.find("title")
+                link_tag = item.find("link")
+                
+                if title_tag and link_tag:
+                    raw_title = title_tag.get_text()
+                    # 抓重點邏輯：切除標題後方的期刊名稱 (例如 "Title - Journal of...")
+                    clean_title = raw_title.split(' - ')[0].split(' | ')[0]
+                    
+                    # 抓連結邏輯
+                    link = link_tag.next_sibling if link_tag.next_sibling and "http" in str(link_tag.next_sibling) else link_tag.get_text()
+                    
+                    all_papers.append({
+                        "title": clean_title.strip(),
+                        "link": str(link).strip(),
+                        "journal": j,
+                        "date": TODAY_STR
+                    })
+                    count += 1
+                if count >= 3: break # 每個期刊取最新 3 篇，避免頁面太長
+            print(f"✅ {j}: 已抓取 {count} 篇")
+        except Exception as e:
+            print(f"❌ {j} 抓取失敗: {e}")
+            
+    return all_papers
 # =========================
 # 4. 執行與儲存
 # =========================
