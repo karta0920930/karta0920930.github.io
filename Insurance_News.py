@@ -129,25 +129,41 @@ def get_japan_news():
 #
 def get_journal_papers():
     print("🔎 正在檢索 Journal of Risk and Insurance 最新論文...")
-    # 使用 Google News RSS 搜尋學術期刊更新，這對 GitHub Actions 最穩定
+    # 使用 Google News RSS
     rss_url = "https://news.google.com/rss/search?q=source:%22Journal+of+Risk+and+Insurance%22&hl=en-US&gl=US&ceid=US:en"
     papers = []
     try:
         response = requests.get(rss_url, headers=HEADERS, timeout=15)
-        soup = BeautifulSoup(response.content, "xml")
+        
+        # 修正點：使用 html.parser 代替 xml
+        soup = BeautifulSoup(response.text, "html.parser")
         items = soup.find_all("item")
 
         for item in items:
-            papers.append({
-                "title": item.title.text,
-                "link": item.link.text,
-                "date": item.pubDate.text if item.pubDate else TODAY_STR,
-                "journal": "JRI"
-            })
+            # 在 html.parser 下，標籤名通常會被處理為小寫
+            title_tag = item.find("title")
+            link_tag = item.find("link")
+            pubdate_tag = item.find("pubdate") # RSS 的 pubDate 會變成 pubdate
+            
+            if title_tag and link_tag:
+                # 處理連結：Google News RSS 的 link 標籤處理方式
+                link = link_tag.next_sibling if link_tag.next_sibling and "http" in str(link_tag.next_sibling) else link_tag.get_text()
+                
+                papers.append({
+                    "title": title_tag.get_text(),
+                    "link": str(link).strip(),
+                    "date": pubdate_tag.get_text() if pubdate_tag else TODAY_STR,
+                    "journal": "JRI"
+                })
+            
             if len(papers) >= 10: break
+            
         print(f"✅ 成功抓取 {len(papers)} 篇最新論文")
     except Exception as e:
         print(f"❌ 論文抓取失敗: {e}")
+        # 如果還是失敗，回傳空列表，避免 main() 存檔時報錯
+        papers = []
+        
     return papers
 # =========================
 # 4. 執行與儲存
