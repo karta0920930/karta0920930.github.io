@@ -57,30 +57,47 @@
     <div id="paper-list">讀取中...</div>
 
     <script>
-        async function loadPapers() {
-            try {
-                const response = await fetch('data/paper_data.json?t=' + Date.now());
-                const papers = await response.json();
-                const container = document.getElementById('paper-list');
-                container.innerHTML = '';
+    async function loadPapers() {
+        try {
+            const response = await fetch('data/paper_data.json?t=' + Date.now());
+            const papers = await response.json();
+            const container = document.getElementById('paper-list');
+            container.innerHTML = '';
 
-                papers.forEach(p => {
+            // 按期刊名稱分組 (Grouping)
+            const grouped = papers.reduce((acc, paper) => {
+                if (!acc[paper.journal]) acc[paper.journal] = [];
+                acc[paper.journal].push(paper);
+                return acc;
+            }, {});
+
+            for (const [journalName, journalPapers] of Object.entries(grouped)) {
+                // 建立期刊大標題
+                const sectionHeader = document.createElement('h2');
+                sectionHeader.style = "font-size: 1.4em; color: #2c3e50; margin-top: 40px; border-left: 5px solid #002b5c; padding-left: 10px;";
+                sectionHeader.innerText = journalName;
+                container.appendChild(sectionHeader);
+
+                journalPapers.forEach(p => {
                     const card = document.createElement('div');
                     card.className = 'paper-card';
                     card.innerHTML = `
-                        <a href="${p.link}" target="_blank" class="paper-title">${p.title}</a>
+                        <a href="${p.link}" target="_blank" class="paper-title" 
+                           onclick="window.open('${p.link}', '_blank'); return false;">
+                           ${p.title}
+                        </a>
                         <div class="paper-meta">
-                            <span class="journal-tag">${p.journal}</span>
-                            <span>📅 Published: ${p.date}</span>
+                            <span>📅 Update: ${p.date}</span>
                         </div>
                     `;
                     container.appendChild(card);
                 });
-            } catch (e) {
-                document.getElementById('paper-list').innerHTML = "目前暫無更新。";
             }
+        } catch (e) {
+            document.getElementById('paper-list').innerHTML = "暫無數據更新，請檢查 Python 運行狀態。";
         }
-        loadPapers();
-    </script>
+    }
+    loadPapers();
+</script>
 </body>
 </html>
