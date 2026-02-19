@@ -57,47 +57,79 @@
     <div id="paper-list">讀取中...</div>
 
     <script>
-    async function loadPapers() {
-        try {
-            const response = await fetch('data/paper_data.json?t=' + Date.now());
-            const papers = await response.json();
-            const container = document.getElementById('paper-list');
-            container.innerHTML = '';
+   async function loadPapers() {
+    try {
+        const response = await fetch('data/paper_data.json?t=' + Date.now());
+        const papers = await response.json();
+        const container = document.getElementById('paper-list');
+        container.innerHTML = '';
 
-            // 按期刊名稱分組 (Grouping)
-            const grouped = papers.reduce((acc, paper) => {
-                if (!acc[paper.journal]) acc[paper.journal] = [];
-                acc[paper.journal].push(paper);
-                return acc;
-            }, {});
+        // --- 關鍵字分類規則 ---
+       const categories = {
+    "Life & Health Insurance (壽險與健康險)": 
+        ["life insurance", "mortality", "longevity", "health insurance", "annuity", "pension", "disability", "long-term care"],
+    
+    "Property & Casualty Insurance (產險與責任險)": 
+        ["property", "casualty", "liability", "auto insurance", "catastrophe", "fire insurance", "reinsurance", "flood"],
+    
+    "Actuarial Science & Math (精算科學與數學)": 
+        ["actuarial", "stochastic", "loss model", "ruin theory", "premium principle", "solvency", "credibility theory", "reserving"],
+    
+    "Risk Management & Governance (風險管理與治理)": 
+        ["risk management", "enterprise risk", "erm", "hedging", "systemic risk", "operational risk", "derivatives", "capital requirement"],
+    
+    "Economics of Insurance (保險經濟學)": 
+        ["adverse selection", "moral hazard", "asymmetric information", "insurance market", "regulation", "demand for insurance"],
 
-            for (const [journalName, journalPapers] of Object.entries(grouped)) {
-                // 建立期刊大標題
-                const sectionHeader = document.createElement('h2');
-                sectionHeader.style = "font-size: 1.4em; color: #2c3e50; margin-top: 40px; border-left: 5px solid #002b5c; padding-left: 10px;";
-                sectionHeader.innerText = journalName;
-                container.appendChild(sectionHeader);
+    "Others (其他金融研究)": [] 
+};
 
-                journalPapers.forEach(p => {
-                    const card = document.createElement('div');
-                    card.className = 'paper-card';
-                    card.innerHTML = `
-                        <a href="${p.link}" target="_blank" class="paper-title" 
-                           onclick="window.open('${p.link}', '_blank'); return false;">
-                           ${p.title}
-                        </a>
-                        <div class="paper-meta">
-                            <span>📅 Update: ${p.date}</span>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
+        papers.forEach(p => {
+            const titleLower = p.title.toLowerCase();
+            let assigned = false;
+
+            for (const [catName, keywords] of Object.entries(categories)) {
+                if (keywords.some(key => titleLower.includes(key))) {
+                    groupedData[catName].push(p);
+                    assigned = true;
+                    break; 
+                }
             }
-        } catch (e) {
-            document.getElementById('paper-list').innerHTML = "暫無數據更新，請檢查 Python 運行狀態。";
+            if (!assigned) groupedData["General Finance"].push(p);
+        });
+
+        // --- 渲染到網頁上 ---
+        for (const [catName, catPapers] of Object.entries(groupedData)) {
+            if (catPapers.length === 0) continue; // 如果該主題沒論文就跳過
+
+            // 建立主題大標題
+            const header = document.createElement('h2');
+            header.style = "font-size: 1.5em; color: #002b5c; margin-top: 40px; border-bottom: 2px solid #eee; padding-bottom: 10px;";
+            header.innerHTML = `📘 ${catName} <small style='font-size:0.5em; color:#7f8c8d; font-weight:normal;'>(${catPapers.length} articles)</small>`;
+            container.appendChild(header);
+
+            catPapers.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'paper-card';
+                card.innerHTML = `
+                    <a href="${p.link}" target="_blank" class="paper-title" 
+                       onclick="window.open('${p.link}', '_blank'); return false;">
+                       ${p.title}
+                    </a>
+                    <div class="paper-meta">
+                        <span class="journal-tag">${p.journal}</span>
+                        <span>📅 ${p.date}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
+    } catch (e) {
+        console.error('Error:', e);
+        document.getElementById('paper-list').innerHTML = "目前暫無更新，或 JSON 格式有誤。";
     }
-    loadPapers();
+}
+loadPapers();
 </script>
 </body>
 </html>
