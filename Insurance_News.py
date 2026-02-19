@@ -159,15 +159,21 @@ def get_journal_papers():
                     clean_title = raw_title.split(' - ')[0].split(' | ')[0]
                     
                     # 抓連結邏輯
-                    link = link_tag.next_sibling if link_tag.next_sibling and "http" in str(link_tag.next_sibling) else link_tag.get_text()
-                    
+                   raw_link = link_tag.get_text()
+                    if not raw_link or "http" not in raw_link:
+                    # 針對 html.parser 處理 XML link 標籤的特殊情況
+            raw_link = str(link_tag.next_sibling).strip() if link_tag.next_sibling else ""
+
+                    # 確保連結不為空才加入
+                    if "http" in raw_link:
                     all_papers.append({
                         "title": clean_title.strip(),
-                        "link": str(link).strip(),
+                        "link": raw_link,
                         "journal": j,
                         "date": TODAY_STR
                     })
-                    count += 1
+                        count += 1
+                    
                 if count >= 3: break # 每個期刊取最新 3 篇，避免頁面太長
             print(f"✅ {j}: 已抓取 {count} 篇")
         except Exception as e:
@@ -178,32 +184,49 @@ def get_journal_papers():
 # 4. 執行與儲存
 # =========================
 def main():
+    # 1. 確保輸出目錄存在
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+
+    # 2. 執行抓取
     tw_news = get_taiwan_news()
     jp_news = get_japan_news()
-    papers = get_journal_papers()
+    papers_list = get_journal_papers()  # 改名避免混淆
+    
+    # --- 處理新聞資料 ---
     all_news = tw_news + jp_news
-    
-    # 移除重複標題
     if all_news:
-        df = pd.DataFrame(all_news).drop_duplicates(subset="title")
-        all_news = df.to_dict('records')
-    
-    if not all_news:
+        df_news = pd.DataFrame(all_news).drop_duplicates(subset="title")
+        all_news = df_news.to_dict('records')
+    else:
         all_news = [{
             "title": "今日暫無更新新聞",
             "link": "#",
             "date": TODAY_STR,
-            "source": "台灣新聞"
+            "source": "系統訊息"
         }]
 
-    # 直接使用 json 庫寫入，避免依賴 pandas 的特殊格式
-    json_path = os.path.join(OUTPUT_DIR, "news_data.json")
-    with open(json_path, 'w', encoding='utf-8') as f:
+    # 寫入新聞 JSON
+    news_json_path = os.path.join(OUTPUT_DIR, "news_data.json")
+    with open(news_json_path, 'w', encoding='utf-8') as f:
         json.dump(all_news, f, ensure_ascii=False, indent=4)
         
-    print(f"✅ 更新完成！抓到 {len(tw_news)} 則台灣新聞，{len(jp_news)} 則日本新聞。")
-    # 儲存論文資料
-    with open(os.path.join(OUTPUT_DIR, "paper_data.json"), 'w', encoding='utf-8') as f:
-        json.dump(papers, f, ensure_ascii=False, indent=4)
+    print(f"✅ 新聞更新完成！存入 {len(all_news)} 則 (台:{len(tw_news)}/日:{len(jp_news)})")
+
+    # --- 處理論文資料 ---
+    if papers_list:
+        # 論文也做去重處理
+        df_papers = pd.DataFrame(papers_list).drop_duplicates(subset="title")
+        papers_final = df_papers.to_dict('records')
+    else:
+        papers_final = [] # 如果沒抓到就留空列表
+
+    # 寫入論文 JSON
+    paper_json_path = os.path.join(OUTPUT_DIR, "paper_data.json")
+    with open(paper_json_path, 'w', encoding='utf-8') as f:
+        json.dump(papers_final, f, ensure_ascii=False, indent=4)
+        
+    print(f"✅ 論文更新完成！共存入 {len(papers_final)} 篇論文。")
+
 if __name__ == "__main__":
     main()
