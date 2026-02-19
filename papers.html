@@ -6,15 +6,23 @@
     <title>學術研究監測 | Insurance Papers</title>
     <style>
         body {
-            font-family: "Times New Roman", "Songti TC", serif; /* 學術風字體 */
+            font-family: "Times New Roman", "Songti TC", serif;
             background-color: #fdfdfb;
             color: #2c3e50;
             max-width: 800px;
             margin: 0 auto;
             padding: 40px 20px;
         }
-        nav { margin-bottom: 30px; font-family: sans-serif; }
+        nav { margin-bottom: 30px; font-family: sans-serif; font-size: 0.9em; }
+        nav a { text-decoration: none; color: #1a56db; margin: 0 10px; }
         h1 { border-bottom: 2px solid #2c3e50; padding-bottom: 10px; font-size: 2.2em; }
+        h2 { 
+            border-left: 6px solid #002b5c; 
+            background: #f1f4f8; 
+            padding: 10px 15px; 
+            margin-top: 40px; 
+            font-size: 1.4em;
+        }
         .paper-card {
             background: white;
             padding: 20px;
@@ -24,14 +32,15 @@
         }
         .paper-card:hover { border-left: 5px solid #1a56db; box-shadow: 2px 2px 10px rgba(0,0,0,0.05); }
         .paper-title {
-            font-size: 1.25em;
+            font-size: 1.15em;
             color: #1a56db;
             text-decoration: none;
             font-weight: bold;
             display: block;
             margin-bottom: 8px;
+            line-height: 1.4;
         }
-        .paper-meta { font-size: 0.9em; color: #7f8c8d; }
+        .paper-meta { font-size: 0.85em; color: #7f8c8d; }
         .journal-tag {
             background: #2c3e50;
             color: white;
@@ -43,12 +52,12 @@
     </style>
 </head>
 <body>
-<nav>
+    <nav>
         <strong>首頁 / 履歷</strong> | 
         <a href="insurance.html">Insurance News</a> |
         <a href="insuranceedu.html">保險知識</a> |
         <a href="papers.html">論文更新</a>
-</nav>
+    </nav>
     <header>
         <h1>Insurance Research Monitor</h1>
         <p>自動監測全球風險管理與保險精算之最新期刊論文</p>
@@ -57,79 +66,86 @@
     <div id="paper-list">讀取中...</div>
 
     <script>
-   async function loadPapers() {
-    try {
-        const response = await fetch('data/paper_data.json?t=' + Date.now());
-        const papers = await response.json();
+    async function loadPapers() {
         const container = document.getElementById('paper-list');
-        container.innerHTML = '';
+        try {
+            const response = await fetch('data/paper_data.json?t=' + Date.now());
+            if (!response.ok) throw new Error("找不到資料檔案");
+            
+            const papers = await response.json();
+            container.innerHTML = '';
 
-        // --- 關鍵字分類規則 ---
-       const categories = {
-    "Life & Health Insurance (壽險與健康險)": 
-        ["life insurance", "mortality", "longevity", "health insurance", "annuity", "pension", "disability", "long-term care"],
-    
-    "Property & Casualty Insurance (產險與責任險)": 
-        ["property", "casualty", "liability", "auto insurance", "catastrophe", "fire insurance", "reinsurance", "flood"],
-    
-    "Actuarial Science & Math (精算科學與數學)": 
-        ["actuarial", "stochastic", "loss model", "ruin theory", "premium principle", "solvency", "credibility theory", "reserving"],
-    
-    "Risk Management & Governance (風險管理與治理)": 
-        ["risk management", "enterprise risk", "erm", "hedging", "systemic risk", "operational risk", "derivatives", "capital requirement"],
-    
-    "Economics of Insurance (保險經濟學)": 
-        ["adverse selection", "moral hazard", "asymmetric information", "insurance market", "regulation", "demand for insurance"],
+            // 1. 定義分類規則
+            const categories = {
+                "Life & Health Insurance (壽險與健康險)": ["life insurance", "mortality", "longevity", "health insurance", "annuity", "pension", "disability", "long-term care"],
+                "Property & Casualty Insurance (產險與責任險)": ["property", "casualty", "liability", "auto insurance", "catastrophe", "fire insurance", "reinsurance", "flood"],
+                "Actuarial Science & Math (精算科學與數學)": ["actuarial", "stochastic", "loss model", "ruin theory", "premium principle", "solvency", "credibility theory", "reserving"],
+                "Risk Management & Governance (風險管理與治理)": ["risk management", "enterprise risk", "erm", "hedging", "systemic risk", "operational risk", "derivatives", "capital requirement"],
+                "Economics of Insurance (保險經濟學)": ["adverse selection", "moral hazard", "asymmetric information", "insurance market", "regulation", "demand for insurance"],
+                "General Finance (一般金融與其他)": [] 
+            };
 
-    "Others (其他金融研究)": [] 
-};
-
-        papers.forEach(p => {
-            const titleLower = p.title.toLowerCase();
-            let assigned = false;
-
-            for (const [catName, keywords] of Object.entries(categories)) {
-                if (keywords.some(key => titleLower.includes(key))) {
-                    groupedData[catName].push(p);
-                    assigned = true;
-                    break; 
-                }
+            // 2. 重要修正：初始化分組物件 (原本漏了這一步)
+            const groupedData = {};
+            for (const key in categories) {
+                groupedData[key] = [];
             }
-            if (!assigned) groupedData["General Finance"].push(p);
-        });
 
-        // --- 渲染到網頁上 ---
-        for (const [catName, catPapers] of Object.entries(groupedData)) {
-            if (catPapers.length === 0) continue; // 如果該主題沒論文就跳過
+            // 3. 進行分類
+            papers.forEach(p => {
+                const titleLower = p.title.toLowerCase();
+                let assigned = false;
 
-            // 建立主題大標題
-            const header = document.createElement('h2');
-            header.style = "font-size: 1.5em; color: #002b5c; margin-top: 40px; border-bottom: 2px solid #eee; padding-bottom: 10px;";
-            header.innerHTML = `📘 ${catName} <small style='font-size:0.5em; color:#7f8c8d; font-weight:normal;'>(${catPapers.length} articles)</small>`;
-            container.appendChild(header);
-
-            catPapers.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'paper-card';
-                card.innerHTML = `
-                    <a href="${p.link}" target="_blank" class="paper-title" 
-                       onclick="window.open('${p.link}', '_blank'); return false;">
-                       ${p.title}
-                    </a>
-                    <div class="paper-meta">
-                        <span class="journal-tag">${p.journal}</span>
-                        <span>📅 ${p.date}</span>
-                    </div>
-                `;
-                container.appendChild(card);
+                for (const [catName, keywords] of Object.entries(categories)) {
+                    if (keywords.length > 0 && keywords.some(key => titleLower.includes(key))) {
+                        groupedData[catName].push(p);
+                        assigned = true;
+                        break; 
+                    }
+                }
+                // 若沒對應到關鍵字，歸類到最後一個 (General Finance)
+                if (!assigned) {
+                    groupedData["General Finance (一般金融與其他)"].push(p);
+                }
             });
+
+            // 4. 渲染到網頁
+            let hasData = false;
+            for (const [catName, catPapers] of Object.entries(groupedData)) {
+                if (catPapers.length === 0) continue; 
+                hasData = true;
+
+                const header = document.createElement('h2');
+                header.innerHTML = `📘 ${catName}`;
+                container.appendChild(header);
+
+                catPapers.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'paper-card';
+                    card.innerHTML = `
+                        <a href="${p.link}" target="_blank" class="paper-title" 
+                           onclick="window.open('${p.link}', '_blank'); return false;">
+                           ${p.title}
+                        </a>
+                        <div class="paper-meta">
+                            <span class="journal-tag">${p.journal}</span>
+                            <span>📅 ${p.date}</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            if (!hasData) {
+                container.innerHTML = "目前尚無匹配分類的論文更新。";
+            }
+
+        } catch (e) {
+            console.error('Error:', e);
+            container.innerHTML = "⚠️ 無法讀取資料，請確認 data/paper_data.json 是否存在且格式正確。";
         }
-    } catch (e) {
-        console.error('Error:', e);
-        document.getElementById('paper-list').innerHTML = "目前暫無更新，或 JSON 格式有誤。";
     }
-}
-loadPapers();
-</script>
+    loadPapers();
+    </script>
 </body>
 </html>
