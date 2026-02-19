@@ -132,7 +132,7 @@ def get_journal_papers():
         "Journal of Financial Economics", "Journal of Banking and Finance", 
         "Journal of Corporate Finance", "Journal of Japanese International Economy",
         "Journal of Money, Credit and Banking", "Journal of Financial and Quantitative Analysis",
-        "Review of Financial Studies","Journal of Risk and Insurance"
+        "Review of Financial Studies","Journal of Risk and Insurance","Insurance: Mathematics and Economics"
     ]
     
     all_papers = []
