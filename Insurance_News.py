@@ -132,15 +132,13 @@ def get_journal_papers():
         "Journal of Financial Economics", "Journal of Banking and Finance", 
         "Journal of Corporate Finance", "Journal of Japanese International Economy",
         "Journal of Money, Credit and Banking", "Journal of Financial and Quantitative Analysis",
-        "Review of Financial Studies","Journal of Risk and Insurance","Insurance: Mathematics and Economics"
+        "Review of Financial Studies", "Journal of Risk and Insurance", "Insurance: Mathematics and Economics"
     ]
     
     all_papers = []
     print(f"🔎 開始監測 {len(journals)} 本金融頂刊...")
 
     for j in journals:
-        # 使用 Google News RSS 針對特定期刊搜尋標題
-        # 加上 intitle: 確保抓到的是論文標題而非新聞報導
         rss_url = f"https://news.google.com/rss/search?q=intitle:%22{j.replace(' ', '+')}%22&hl=en-US&gl=US&ceid=US:en"
         
         try:
@@ -155,26 +153,28 @@ def get_journal_papers():
                 
                 if title_tag and link_tag:
                     raw_title = title_tag.get_text()
-                    # 抓重點邏輯：切除標題後方的期刊名稱 (例如 "Title - Journal of...")
                     clean_title = raw_title.split(' - ')[0].split(' | ')[0]
                     
-                    # 抓連結邏輯
-                   raw_link = link_tag.get_text()
+                    # --- 縮排修正區開始 ---
+                    raw_link = link_tag.get_text()
                     if not raw_link or "http" not in raw_link:
-                    # 針對 html.parser 處理 XML link 標籤的特殊情況
-            raw_link = str(link_tag.next_sibling).strip() if link_tag.next_sibling else ""
+                        if link_tag.next_sibling:
+                            raw_link = str(link_tag.next_sibling).strip()
+                        else:
+                            raw_link = ""
 
-                    # 確保連結不為空才加入
                     if "http" in raw_link:
-                    all_papers.append({
-                        "title": clean_title.strip(),
-                        "link": raw_link,
-                        "journal": j,
-                        "date": TODAY_STR
-                    })
+                        all_papers.append({
+                            "title": clean_title.strip(),
+                            "link": raw_link,
+                            "journal": j,
+                            "date": TODAY_STR
+                        })
                         count += 1
-                    
-                if count >= 3: break # 每個期刊取最新 3 篇，避免頁面太長
+                    # --- 縮排修正區結束 ---
+
+                if count >= 3: 
+                    break 
             print(f"✅ {j}: 已抓取 {count} 篇")
         except Exception as e:
             print(f"❌ {j} 抓取失敗: {e}")
