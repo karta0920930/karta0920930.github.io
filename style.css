@@ -1,15 +1,19 @@
-/* 1. 基礎設定：設定字體與背景 */
+/* ==========================================
+   1. 基礎設定 (Global Styles)
+   ========================================== */
 body {
-    font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; /* 使用現代感的字體 */
+    font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
     line-height: 1.8;
     color: #333;
-    max-width: 850px; /* 限制寬度，讓閱讀更舒服 */
-    margin: 0 auto;   /* 網頁置中 */
+    max-width: 850px;
+    margin: 0 auto;
     padding: 40px 20px;
-    background-color: #f8f9fa; /* 淡淡的灰色背景 */
+    background-color: #f8f9fa;
 }
 
-/* 2. 導覽列美化 */
+/* ==========================================
+   2. 導覽列與頁尾 (Nav & Footer)
+   ========================================== */
 nav {
     text-align: right;
     margin-bottom: 30px;
@@ -17,24 +21,32 @@ nav {
 }
 
 nav a {
-    color: #004080; /* 深藍色 */
+    color: #004080;
     text-decoration: none;
     font-weight: bold;
 }
 
 nav a:hover {
-    text-decoration: underline; /* 滑鼠移上去有下底線 */
+    text-decoration: underline;
 }
 
-/* 3. 標題設計 */
+footer {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 0.8em;
+    color: #777;
+}
+
+/* ==========================================
+   3. 標題與標籤 (Headings & Tags)
+   ========================================== */
 h1 {
-    color: #002b5c; /* 經典金融藍 */
+    color: #002b5c;
     border-left: 8px solid #002b5c;
     padding-left: 15px;
     margin-bottom: 10px;
 }
 
-/* 讓不同主題的標題帶有專業感 */
 h2 {
     border-left: 6px solid #002b5c;
     background: linear-gradient(to right, #e9f0f7, transparent);
@@ -44,56 +56,29 @@ h2 {
     margin-top: 50px;
 }
 
-/* 顯示期刊標籤的樣式 */
 .journal-tag {
-    background: #546e7a; /* 深灰藍色，顯得專業 */
+    background: #546e7a;
     color: white;
     padding: 2px 10px;
     border-radius: 12px;
     font-size: 0.8em;
     font-weight: normal;
 }
-/* 4. 區塊設定 */
+
+/* ==========================================
+   4. 通用區塊 (Layout Sections)
+   ========================================== */
 section {
     background: white;
     padding: 25px;
     margin-bottom: 20px;
-    border-radius: 8px; /* 圓角設計 */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* 輕微陰影，增加立體感 */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
-/* 5. 頁尾設計 */
-footer {
-    text-align: center;
-    margin-top: 50px;
-    font-size: 0.8em;
-    color: #777;
-}
-
-/* 響應式設計：讓手機看也漂亮 */
-@media (max-width: 600px) {
-    body {
-        padding: 20px 15px;
-    }
-}
-/* 新聞列表樣式 */
-.news-list {
-    list-style: none;
-    padding: 0;
-}
-
-/* 分類標籤樣式 */
-.category-tag {
-    display: inline-block;
-    background-color: #e0f2fe;
-    color: #0369a1;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.8em;
-    margin-right: 10px;
-    vertical-align: middle;
-}
-
+/* ==========================================
+   5. 新聞列表專用樣式 (News Specific)
+   ========================================== */
 #news-container {
     background: #fff;
     padding: 20px;
