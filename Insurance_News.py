@@ -74,54 +74,55 @@ def get_taiwan_news():
 # 忽略討厭的警告訊息
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
-def get_japan_news():
-    print("🔎 正在精確抓取日本保險產業新聞 (穩定限制版)...")
-    # 搜尋關鍵字：確保精準對準業界與壽險/損害保險
-    rss_url = "https://news.google.com/rss/search?q=%22%E4%BF%9D%E9%99%BA%E6%A5%AD%E7%95%8C%22%20OR%20%22%E7%94%9F%E5%91%BD%E4%BF%9D%E9%99%BA%22%20OR%20%22%E6%90%8D%E5%AE%B3%E4%BF%9D%E9%99%BA%22&hl=ja&gl=JP&ceid=JP%3Aja"
+def get_professional_insurance_news():
+    print("🔎 正在過濾保險業深度研究與專業新聞...")
+    
+    # 使用 OR 邏輯組合專業關鍵字
+    # 包含：保險業界面、調查報告、中期計畫、金融廳動態
+    keywords = [
+        '"保険業界"', 
+        '"ファクトブック"', 
+        '"意識調査"', 
+        '"中期経営計画"', 
+        '"新商品発表"',
+        '"金融庁 監督"'
+    ]
+    query = " OR ".join(keywords)
+    rss_url = f"https://news.google.com/rss/search?q={query}&hl=ja&gl=JP&ceid=JP%3Aja"
     
     articles = []
-    # 精確黑名單
-    JP_BLACKLIST = ["保険套", "保険証"]
+    # 專業黑名單：過濾掉一般的社會案件或廣告
+    PROFESSIONAL_BLACKLIST = ["逮捕", "火災", "事故現場", "保険金詐欺"]
 
     try:
         response = requests.get(rss_url, headers=HEADERS, timeout=15)
-        # 既然沒有 lxml，我們就統一用 html.parser，但調整抓取標籤的寫法
-        soup = BeautifulSoup(response.text, "html.parser")
-        
-        # 在 html.parser 之下，XML 的 <item> 會被識別為 <item></item>
+        soup = BeautifulSoup(response.content, "xml")
         items = soup.find_all("item")
         
         for item in items:
-            # 嘗試抓取標題與連結
-            title_tag = item.find("title")
-            link_tag = item.find("link")
+            title = item.title.text
+            link = item.link.text
             
-            if title_tag and link_tag:
-                title = title_tag.get_text()
-                # 處理 Google News RSS 特有的連結讀取問題
-                link = link_tag.next_sibling if link_tag.next_sibling and "http" in str(link_tag.next_sibling) else link_tag.get_text()
-                link = str(link).strip()
+            # 邏輯過濾：
+            # 1. 排除黑名單
+            if any(word in title for word in PROFESSIONAL_BLACKLIST):
+                continue
+                
+            # 2. 強化過濾：必須包含以下「從業人員」感興趣的詞
+            pro_filters = ["発行", "調査", "発表", "開始", "導入", "DX", "戦略"]
+            if any(word in title for word in pro_filters):
+                articles.append({
+                    "title": title,
+                    "link": link,
+                    "date": TODAY_STR,
+                    "source": "日本業界動態"
+                })
 
-                # 過濾邏輯
-                if any(word in title for word in JP_BLACKLIST):
-                    continue
+            if len(articles) >= 10: break
                 
-                # 標題長度檢查且必須包含核心詞彙
-                if len(title) > 15 and "保険" in title:
-                    articles.append({
-                        "title": title,
-                        "link": link,
-                        "date": TODAY_STR,
-                        "source": "日本新聞"
-                    })
-            
-            # 🔴 強制煞車：最多只拿 10 則，絕對不再噴 100 則
-            if len(articles) >= 10:
-                break
-                
-        print(f"✅ 更新完成！成功篩選出 {len(articles)} 則日本精華新聞。")
+        print(f"✅ 篩選完成，共找到 {len(articles)} 則專業深度新聞。")
     except Exception as e:
-        print(f"❌ 日本抓取失敗: {e}")
+        print(f"❌ 抓取失敗: {e}")
         
     return articles
 #3.5 論文定期更新
