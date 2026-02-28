@@ -26,6 +26,10 @@
             text-decoration: none;
             font-weight: bold;
             font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: #d9534f;
         }
 
         /* 3. 標題與區塊設計 */
@@ -39,18 +43,14 @@
 
         h2 {
             color: #004080;
-            background: #e9f0f7;
+            background: linear-gradient(90deg, #e9f0f7 0%, transparent 100%);
             padding: 10px 15px;
-            border-radius: 6px;
+            border-left: 4px solid #004080;
+            border-radius: 0 6px 6px 0;
             margin-top: 40px;
-            font-size: 1.4em;
+            font-size: 1.3em;
             display: flex;
             align-items: center;
-        }
-
-        h2::before {
-            content: "📍";
-            margin-right: 10px;
         }
 
         section {
@@ -121,7 +121,7 @@
         .loading {
             text-align: center;
             color: #666;
-            padding: 20px;
+            padding: 40px;
         }
 
         /* 響應式設計 */
@@ -144,7 +144,7 @@
 
     <nav>
         <a href="index.html">首頁 / 履歷</a> |
-        <strong>Insurance News</strong> 
+        <strong>Insurance News</strong> |
         <a href="insuranceedu.html">保險知識</a> |
         <a href="papers.html">論文更新</a>
     </nav>
@@ -164,21 +164,22 @@
 
     <script>
         async function fetchNews() {
+            const container = document.getElementById('news-container');
             try {
-                // 使用時間戳避開快取
+                // 使用時間戳避開瀏覽器快取
                 const response = await fetch('data/news_data.json?t=' + new Date().getTime());
-                if (!response.ok) throw new Error('無法讀取 JSON 資料');
+                if (!response.ok) throw new Error('無法讀取新聞 JSON 資料，請確認路徑是否正確');
                 
                 const data = await response.json();
-                const container = document.getElementById('news-container');
-                container.innerHTML = ''; 
+                container.innerHTML = ''; // 清除 Loading 狀態
 
                 if (!data || data.length === 0) {
-                    container.innerHTML = '<p>📭 今日暫無相關保險新聞。</p>';
+                    container.innerHTML = '<p class="loading">📭 今日暫無相關保險新聞。</p>';
                     return;
                 }
 
                 // --- 分類邏輯 ---
+                // 判斷方式：source 標籤或標題中是否含有日文字元
                 const japanNews = data.filter(item => 
                     item.source === "日本新聞" || /[ぁ-んァ-ン]/.test(item.title)
                 );
@@ -187,56 +188,57 @@
                     item.source === "台灣新聞" || (!item.source && !/[ぁ-んァ-ン]/.test(item.title))
                 );
 
-                // 建立渲染函式
+                // --- 渲染函式 ---
                 const renderGroup = (groupTitle, icon, newsItems) => {
                     if (newsItems.length === 0) return;
 
                     const groupWrapper = document.createElement('div');
-                    groupWrapper.innerHTML = `<h2>${icon} ${groupTitle}</h2>`;
+                    groupWrapper.innerHTML = `<h2><span style="margin-right:10px">${icon}</span>${groupTitle}</h2>`;
                     
                     const list = document.createElement('ul');
                     list.className = 'news-list';
 
-                   newsItems.forEach(item => {
-                    const li = document.createElement('li');
-                    li.className = 'news-item';
-    
-                    const tagText = item.source || item.category || "最新動態";
-    
-                    // 確保這裡只有一個 <a> 標籤，並且屬性乾淨
-                    li.innerHTML = `
-                        <span class="category-tag">${tagText}</span>
-                        <a href="${item.link}" 
-                           target="_blank" 
-                           rel="noopener noreferrer" 
-                           class="news-link"
-                           onclick="window.open('${item.link}', '_blank'); return false;">
-                            ${item.title}
-                        </a>
-                        <span class="news-date">${item.date}</span>
-                    `;
-                    list.appendChild(li);
-                });
+                    newsItems.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'news-item';
+
+                        const tagText = item.source || "最新動態";
+                        
+                        // 修正後的 HTML：移除冗餘的 onclick，確保連結行為正常
+                        li.innerHTML = `
+                            <span class="category-tag">${tagText}</span>
+                            <a href="${item.link}" 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               class="news-link">
+                                ${item.title}
+                            </a>
+                            <span class="news-date">${item.date}</span>
+                        `;
+                        list.appendChild(li);
+                    });
 
                     groupWrapper.appendChild(list);
                     container.appendChild(groupWrapper);
                 };
 
-                // 渲染台灣與日本區塊
+                // 執行渲染
                 renderGroup("台灣保險要聞", "🇹🇼", taiwanNews);
                 renderGroup("日本保險要聞", "🇯🇵", japanNews);
 
             } catch (error) {
                 console.error('Fetch error:', error);
-                document.getElementById('news-container').innerHTML = 
-                    `<div style="color:#c53030; background:#fff5f5; padding:20px; border-radius:8px; border:1px solid #feb2b2;">
+                container.innerHTML = 
+                    `<div style="color:#c53030; background:#fff5f5; padding:20px; border-radius:12px; border:1px solid #feb2b2; text-align:center;">
                         <strong>⚠️ 系統連線異常</strong><br>
-                        請確認 <code>data/news_data.json</code> 是否已正確生成。
+                        請確認 <code>data/news_data.json</code> 是否已正確生成並上傳至 GitHub。<br>
+                        <small style="color:#666">(錯誤訊息: ${error.message})</small>
                     </div>`;
             }
         }
 
-        fetchNews();
+        // 頁面載入後執行
+        window.onload = fetchNews;
     </script>
 </body>
 </html>
