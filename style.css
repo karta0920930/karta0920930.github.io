@@ -85,3 +85,77 @@ section {
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+/* 保險模型圖樣式 */
+.insurance-model {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #f8fafc;
+    padding: 30px 10px;
+    border-radius: 12px;
+    margin: 25px 0;
+    border: 1px dashed #cbd5e1;
+}
+
+.model-box {
+    flex: 1;
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    max-width: 180px;
+}
+
+.consumer {
+    background: #e0f2fe;
+    border: 2px solid #0369a1;
+    color: #0369a1;
+}
+
+.company {
+    background: #f1f5f9;
+    border: 2px solid #475569;
+    color: #475569;
+}
+
+.model-box strong {
+    display: block;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.model-box p {
+    font-size: 0.8em;
+    margin: 0;
+}
+
+.model-arrow {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #64748b;
+}
+
+.arrow-line {
+    font-size: 1.5em;
+    margin: -5px 0;
+}
+
+.arrow-text {
+    padding: 2px 0;
+}
+
+/* 針對手機版的調整 */
+@media (max-width: 600px) {
+    .insurance-model {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .model-arrow {
+        transform: rotate(90deg);
+        margin: 10px 0;
+    }
+}
