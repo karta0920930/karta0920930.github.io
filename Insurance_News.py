@@ -74,7 +74,7 @@ def get_taiwan_news():
 # 忽略討厭的警告訊息
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
-def japan_news():
+def get_japan_news():
     print("🔎 正在過濾保險業深度研究與專業新聞...")
     
     # 使用 OR 邏輯組合專業關鍵字
