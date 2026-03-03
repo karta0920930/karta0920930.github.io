@@ -4,186 +4,112 @@
 body {
     font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
     line-height: 1.8;
-    color: #333;
-    max-width: 850px;
+    color: #334155;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 40px 20px;
-    background-color: #f8f9fa;
+    padding: 0 20px 40px; /* 頂部留給固定導覽列 */
+    background-color: #f8fafc;
 }
 
 /* ==========================================
-   2. 導覽列與頁尾 (Nav & Footer)
+   2. 統一導覽列 (Modern Navigation)
    ========================================== */
 nav {
-    text-align: right;
-    margin-bottom: 30px;
-    font-size: 0.9em;
+    text-align: center;
+    padding: 25px 0;
+    background: white;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+    border-radius: 0 0 15px 15px; /* 底部圓角 */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 nav a {
-    color: #004080;
+    color: #64748b;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 600;
+    padding: 8px 18px;
+    margin: 0 5px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.95em;
 }
 
 nav a:hover {
-    text-decoration: underline;
+    color: #0ea5e9;
+    background: #f0f9ff;
 }
 
-footer {
-    text-align: center;
-    margin-top: 50px;
-    font-size: 0.8em;
-    color: #777;
+/* 用於標示當前頁面的樣式 (在 HTML 中加在強化的標籤上) */
+nav strong {
+    color: #0ea5e9;
+    background: #f0f9ff;
+    padding: 8px 18px;
+    border-radius: 8px;
+    margin: 0 5px;
 }
 
 /* ==========================================
-   3. 標題與標籤 (Headings & Tags)
+   3. 標題與視覺層次 (Typography)
    ========================================== */
 h1 {
-    color: #002b5c;
-    border-left: 8px solid #002b5c;
-    padding-left: 15px;
-    margin-bottom: 10px;
+    color: #0f172a;
+    font-size: 2.2em;
+    border-left: 8px solid #0ea5e9;
+    padding-left: 20px;
+    margin: 40px 0 20px;
 }
 
 h2 {
-    border-left: 6px solid #002b5c;
-    background: linear-gradient(to right, #e9f0f7, transparent);
-    padding: 12px 15px;
-    color: #002b5c;
-    border-radius: 4px;
-    margin-top: 50px;
-}
-
-.journal-tag {
-    background: #546e7a;
-    color: white;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 0.8em;
-    font-weight: normal;
-}
-
-/* ==========================================
-   4. 通用區塊 (Layout Sections)
-   ========================================== */
-section {
-    background: white;
-    padding: 25px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-}
-
-/* ==========================================
-   5. 新聞列表專用樣式 (News Specific)
-   ========================================== */
-#news-container {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-/* 保險模型圖樣式 */
-.insurance-model {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background: #f8fafc;
-    padding: 30px 10px;
-    border-radius: 12px;
-    margin: 25px 0;
-    border: 1px dashed #cbd5e1;
-}
-
-.model-box {
-    flex: 1;
-    text-align: center;
-    padding: 15px;
-    border-radius: 8px;
-    max-width: 180px;
-}
-
-.consumer {
-    background: #e0f2fe;
-    border: 2px solid #0369a1;
-    color: #0369a1;
-}
-
-.company {
-    background: #f1f5f9;
-    border: 2px solid #475569;
-    color: #475569;
-}
-
-.model-box strong {
-    display: block;
-    font-size: 1.1em;
-    margin-bottom: 5px;
-}
-
-.model-box p {
-    font-size: 0.8em;
-    margin: 0;
-}
-
-.model-arrow {
-    flex: 1;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-size: 0.85em;
-    font-weight: bold;
-    color: #64748b;
-}
-
-.arrow-line {
+    border-left: 5px solid #0ea5e9;
+    background: linear-gradient(90deg, #f0f9ff 0%, transparent 100%);
+    padding: 12px 20px;
+    color: #1e293b;
+    border-radius: 0 8px 8px 0;
+    margin-top: 45px;
     font-size: 1.5em;
-    margin: -5px 0;
 }
 
-.arrow-text {
-    padding: 2px 0;
+/* ==========================================
+   4. 通用區塊卡片化 (Cards)
+   ========================================== */
+section, article {
+    background: white;
+    padding: 35px;
+    margin-bottom: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    border: 1px solid #f1f5f9;
 }
 
-/* 針對手機版的調整 */
-@media (max-width: 600px) {
-    .insurance-model {
-        flex-direction: column;
-        gap: 20px;
-    }
-    .model-arrow {
-        transform: rotate(90deg);
-        margin: 10px 0;
-    }
-}
+/* ==========================================
+   5. 精美保險模型圖 (Visual Diagram)
+   ========================================== */
 .visual-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-    padding: 40px;
+    background: #f8fafc;
+    padding: 40px 20px;
     border-radius: 20px;
-    margin: 30px 0;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    margin: 35px 0;
+    border: 1px solid #e2e8f0;
 }
 
 .node {
-    flex: 0 0 180px;
+    flex: 0 0 170px;
     padding: 20px;
     background: white;
     border-radius: 16px;
     text-align: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
     border: 1px solid #e2e8f0;
 }
 
-.node:hover { transform: translateY(-5px); }
-.node-icon { font-size: 2em; margin-bottom: 10px; }
-.node strong { display: block; color: #1e293b; margin-bottom: 5px; }
+.node-icon { font-size: 2.2em; margin-bottom: 12px; display: block; }
+.node strong { display: block; color: #0f172a; font-size: 1em; }
 .node span { font-size: 0.8em; color: #64748b; }
 
 .consumer-node { border-top: 5px solid #0ea5e9; }
@@ -191,14 +117,14 @@ section {
 
 .flow-container {
     flex: 1;
-    padding: 0 20px;
+    padding: 0 15px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
 }
 
 .flow-line { display: flex; flex-direction: column; align-items: center; }
-.flow-line .label { font-size: 0.75em; font-weight: bold; color: #475569; margin-bottom: 5px; }
+.flow-line .label { font-size: 0.75em; font-weight: 700; color: #475569; margin-bottom: 8px; }
 
 .line {
     width: 100%;
@@ -207,16 +133,27 @@ section {
     position: relative;
 }
 
-/* 繪製箭頭 */
 .premium .line::after {
-    content: '▶'; position: absolute; right: -5px; top: -10px; color: #cbd5e1;
+    content: '▶'; position: absolute; right: -5px; top: -11px; color: #cbd5e1; font-size: 12px;
 }
 .claim .line::before {
-    content: '◀'; position: absolute; left: -5px; top: -10px; color: #cbd5e1;
+    content: '◀'; position: absolute; left: -5px; top: -11px; color: #cbd5e1; font-size: 12px;
 }
 
-/* 響應式：手機版變垂直排列 */
-@media (max-width: 600px) {
-    .visual-container { flex-direction: column; gap: 30px; }
-    .flow-container { transform: rotate(90deg); margin: 20px 0; }
+/* ==========================================
+   6. 頁尾與響應式 (Footer & Mobile)
+   ========================================== */
+footer {
+    text-align: center;
+    padding: 40px 0;
+    font-size: 0.85em;
+    color: #94a3b8;
+    border-top: 1px solid #e2e8f0;
+}
+
+@media (max-width: 650px) {
+    nav a, nav strong { padding: 8px 10px; font-size: 0.85em; margin: 0 2px; }
+    h1 { font-size: 1.8em; }
+    .visual-container { flex-direction: column; gap: 40px; padding: 40px 10px; }
+    .flow-container { transform: rotate(0deg); width: 80%; } /* 手機版不旋轉以免標籤重疊 */
 }
