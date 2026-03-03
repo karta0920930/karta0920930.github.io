@@ -93,14 +93,7 @@ def get_japan_news():
     articles = []
     # 專業黑名單：過濾掉一般的社會案件或廣告
     PROFESSIONAL_BLACKLIST = ["逮捕", "避妊"]
-問題的核心出在 item.link.text 這行代碼。
 
-在使用 html.parser 解析 Google News RSS 時，<link> 標籤通常會被解析成一個「自閉合標籤」或者其內容被放在 next_sibling 中。這導致 item.link.text 抓到的是空字串，進而讓你的網頁連結變成 <a href="">，點擊時就會重新整理當前網頁。
-
-🛠️ 修正後的程式碼
-請將你的 try 區塊程式碼替換為以下內容，我特別針對連結抓取做了「雙重備案」邏輯：
-
-Python
     try:
         response = requests.get(rss_url, headers=HEADERS, timeout=15)
         # 這裡我們維持 html.parser
