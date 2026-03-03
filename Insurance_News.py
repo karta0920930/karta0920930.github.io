@@ -92,28 +92,50 @@ def get_japan_news():
     
     articles = []
     # 專業黑名單：過濾掉一般的社會案件或廣告
-    PROFESSIONAL_BLACKLIST = ["逮捕", "火災", "事故現場", "保険金詐欺"]
+    PROFESSIONAL_BLACKLIST = ["逮捕", "避妊"]
+問題的核心出在 item.link.text 這行代碼。
 
+在使用 html.parser 解析 Google News RSS 時，<link> 標籤通常會被解析成一個「自閉合標籤」或者其內容被放在 next_sibling 中。這導致 item.link.text 抓到的是空字串，進而讓你的網頁連結變成 <a href="">，點擊時就會重新整理當前網頁。
+
+🛠️ 修正後的程式碼
+請將你的 try 區塊程式碼替換為以下內容，我特別針對連結抓取做了「雙重備案」邏輯：
+
+Python
     try:
         response = requests.get(rss_url, headers=HEADERS, timeout=15)
+        # 這裡我們維持 html.parser
         soup = BeautifulSoup(response.content, "html.parser")
         items = soup.find_all("item")
         
         for item in items:
-            title = item.title.text
-            link = item.link.text
+            # 1. 安全抓取標題
+            title_tag = item.find("title")
+            title = title_tag.get_text() if title_tag else "無標題"
             
-            # 邏輯過濾：
-            # 1. 排除黑名單
+            # 2. 安全抓取連結 (修復重點！)
+            link = ""
+            link_tag = item.find("link")
+            if link_tag:
+                # 嘗試第一種：標籤內的文字內容
+                link = link_tag.get_text().strip()
+                # 嘗試第二種：如果標籤內沒文字，抓取它後方的文字節點 (Google News RSS 常見情況)
+                if not link and link_tag.next_sibling:
+                    link = str(link_tag.next_sibling).strip()
+            
+            # 如果還是抓不到連結，這則新聞就沒意義，跳過
+            if not link or not link.startswith("http"):
+                continue
+
+            # 3. 邏輯過濾：排除黑名單
             if any(word in title for word in PROFESSIONAL_BLACKLIST):
                 continue
                 
-            # 2. 強化過濾：必須包含以下「從業人員」感興趣的詞
+            # 4. 強化過濾：必須包含「從業人員」感興趣的詞
             pro_filters = ["発行", "調査", "発表", "開始", "導入", "DX", "戦略"]
             if any(word in title for word in pro_filters):
                 articles.append({
                     "title": title,
-                    "link": link,
+                    "link": link,  # 現在這裡會有正確的網址了
                     "date": TODAY_STR,
                     "source": "日本業界動態"
                 })
@@ -121,8 +143,6 @@ def get_japan_news():
             if len(articles) >= 10: break
                 
         print(f"✅ 篩選完成，共找到 {len(articles)} 則專業深度新聞。")
-    except Exception as e:
-        print(f"❌ 抓取失敗: {e}")
         
     return articles
 #3.5 論文定期更新
