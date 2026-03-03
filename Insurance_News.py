@@ -96,7 +96,7 @@ def get_japan_news():
 
     try:
         response = requests.get(rss_url, headers=HEADERS, timeout=15)
-       soup = BeautifulSoup(response.content, "html.parser")
+        soup = BeautifulSoup(response.content, "html.parser")
         items = soup.find_all("item")
         
         for item in items:
