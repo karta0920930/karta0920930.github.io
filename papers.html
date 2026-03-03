@@ -5,65 +5,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>學術研究監測 | Insurance Papers</title>
     <style>
+        /* 1. 基礎設定 - 與全站風格一致 */
         body {
-            font-family: "Times New Roman", "Songti TC", serif;
-            background-color: #fdfdfb;
-            color: #2c3e50;
-            max-width: 800px;
+            font-family: "Segoe UI", "Microsoft JhengHei", serif; /* 保持通用字體但標題可用襯線體 */
+            line-height: 1.8;
+            color: #334155;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 0 20px 40px;
+            background-color: #f8fafc;
         }
-        nav { margin-bottom: 30px; font-family: sans-serif; font-size: 0.9em; }
-        nav a { text-decoration: none; color: #1a56db; margin: 0 10px; }
-        h1 { border-bottom: 2px solid #2c3e50; padding-bottom: 10px; font-size: 2.2em; }
+
+        /* 2. 統一導覽列 - 修正位置與大小一致性 */
+        nav {
+            display: flex;             
+            justify-content: center;   
+            align-items: center;       
+            gap: 15px;                 
+            padding: 20px 0;
+            background: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            border-radius: 0 0 15px 15px;
+        }
+
+        nav a, nav strong {
+            text-decoration: none;
+            font-size: 16px;
+            color: #64748b;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-block;
+            font-family: sans-serif; /* 導覽列強制用無襯線體，避免跳動 */
+        }
+
+        nav a:hover {
+            color: #0ea5e9;
+            background: #f0f9ff;
+        }
+
+        /* 標示「論文更新」為當前頁面 */
+        .current-page {
+            color: #0ea5e9;
+            background: #f0f9ff;
+        }
+
+        /* 3. 標題與頁首樣式 */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 2.2em;
+            border-bottom: 3px solid #0ea5e9;
+            display: inline-block;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            font-family: "Times New Roman", serif;
+        }
+
         h2 { 
-            border-left: 6px solid #002b5c; 
-            background: #f1f4f8; 
-            padding: 10px 15px; 
-            margin-top: 40px; 
+            border-left: 5px solid #0ea5e9; 
+            background: linear-gradient(90deg, #f0f9ff 0%, transparent 100%); 
+            padding: 12px 15px; 
+            margin-top: 45px; 
             font-size: 1.4em;
+            color: #1e293b;
+            border-radius: 0 8px 8px 0;
         }
+
+        /* 4. 論文卡片設計 */
         .paper-card {
             background: white;
-            padding: 20px;
+            padding: 25px;
             margin-bottom: 20px;
-            border: 1px solid #e1e8ed;
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
         }
-        .paper-card:hover { border-left: 5px solid #1a56db; box-shadow: 2px 2px 10px rgba(0,0,0,0.05); }
+
+        .paper-card:hover { 
+            border-left: 5px solid #0ea5e9; 
+            transform: translateX(5px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+
         .paper-title {
             font-size: 1.15em;
-            color: #1a56db;
+            color: #0369a1;
             text-decoration: none;
             font-weight: bold;
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             line-height: 1.4;
         }
-        .paper-meta { font-size: 0.85em; color: #7f8c8d; }
+
+        .paper-title:hover {
+            color: #0ea5e9;
+            text-decoration: underline;
+        }
+
+        .paper-meta { 
+            font-size: 0.85em; 
+            color: #64748b; 
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .journal-tag {
-            background: #2c3e50;
+            background: #334155;
             color: white;
-            padding: 2px 8px;
+            padding: 2px 10px;
             font-size: 0.8em;
-            margin-right: 10px;
-            border-radius: 3px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        /* 5. 狀態顯示 */
+        #paper-list {
+            min-height: 300px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            padding: 40px 0;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 600px) {
+            nav a, nav strong { padding: 8px 10px; font-size: 14px; }
+            h1 { font-size: 1.8em; }
         }
     </style>
 </head>
 <body>
     <nav>
-    <a href="index.html">首頁 / 履歷</a>
-    <a href="news.html">Insurance News</a>
-    <a href="insuranceedu.html">保險知識</a>
-    <a href="papers.html">論文更新</a>
+        <a href="index.html">首頁 / 履歷</a>
+        <a href="news.html">Insurance News</a>
+        <a href="insuranceedu.html">保險知識</a>
+        <strong class="current-page">論文更新</strong>
     </nav>
+
     <header>
         <h1>Insurance Research Monitor</h1>
         <p>自動監測全球風險管理與保險精算之最新期刊論文</p>
     </header>
 
-    <div id="paper-list">讀取中...</div>
+    <div id="paper-list">⌛ 正在讀取學術資料庫...</div>
 
     <script>
     async function loadPapers() {
@@ -75,7 +172,6 @@
             const papers = await response.json();
             container.innerHTML = '';
 
-            // 1. 定義分類規則
             const categories = {
                 "Life & Health Insurance (壽險與健康險)": ["life insurance", "mortality", "longevity", "health insurance", "annuity", "pension", "disability", "long-term care"],
                 "Property & Casualty Insurance (產險與責任險)": ["property", "casualty", "liability", "auto insurance", "catastrophe", "fire insurance", "reinsurance", "flood"],
@@ -85,17 +181,12 @@
                 "General Finance (一般金融與其他)": [] 
             };
 
-            // 2. 重要修正：初始化分組物件 (原本漏了這一步)
             const groupedData = {};
-            for (const key in categories) {
-                groupedData[key] = [];
-            }
+            for (const key in categories) { groupedData[key] = []; }
 
-            // 3. 進行分類
             papers.forEach(p => {
                 const titleLower = p.title.toLowerCase();
                 let assigned = false;
-
                 for (const [catName, keywords] of Object.entries(categories)) {
                     if (keywords.length > 0 && keywords.some(key => titleLower.includes(key))) {
                         groupedData[catName].push(p);
@@ -103,13 +194,9 @@
                         break; 
                     }
                 }
-                // 若沒對應到關鍵字，歸類到最後一個 (General Finance)
-                if (!assigned) {
-                    groupedData["General Finance (一般金融與其他)"].push(p);
-                }
+                if (!assigned) { groupedData["General Finance (一般金融與其他)"].push(p); }
             });
 
-            // 4. 渲染到網頁
             let hasData = false;
             for (const [catName, catPapers] of Object.entries(groupedData)) {
                 if (catPapers.length === 0) continue; 
@@ -123,8 +210,7 @@
                     const card = document.createElement('div');
                     card.className = 'paper-card';
                     card.innerHTML = `
-                        <a href="${p.link}" target="_blank" class="paper-title" 
-                           onclick="window.open('${p.link}', '_blank'); return false;">
+                        <a href="${p.link}" target="_blank" class="paper-title">
                            ${p.title}
                         </a>
                         <div class="paper-meta">
@@ -136,16 +222,18 @@
                 });
             }
 
-            if (!hasData) {
-                container.innerHTML = "目前尚無匹配分類的論文更新。";
-            }
+            if (!hasData) { container.innerHTML = "目前尚無匹配分類的論文更新。"; }
 
         } catch (e) {
             console.error('Error:', e);
-            container.innerHTML = "⚠️ 無法讀取資料，請確認 data/paper_data.json 是否存在且格式正確。";
+            container.innerHTML = "⚠️ 無法讀取資料，請確認 <code>data/paper_data.json</code> 是否存在。";
         }
     }
     loadPapers();
     </script>
+
+    <footer>
+        <p>&copy; 2026 學術監測系統 | 定期更新來自主要精算與保險期刊之研究</p>
+    </footer>
 </body>
 </html>
