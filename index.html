@@ -4,18 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>個人履歷</title> 
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 1. 基礎設定 - 確保全站風格一致 */
+        body {
+            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+            line-height: 1.8;
+            color: #334155;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+            background-color: #f8fafc;
+        }
+
+        /* 2. 導覽列 - 修正位置不一樣與大小不一的問題 */
+        nav {
+            display: flex;             /* 讓連結排成一排 */
+            justify-content: center;   /* 居中對齊 */
+            align-items: center;       /* 垂直對齊 */
+            gap: 15px;                 /* 連結間距 */
+            padding: 20px 0;
+            background: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            border-radius: 0 0 15px 15px;
+        }
+
+        nav a, nav strong {
+            text-decoration: none;
+            font-size: 16px;
+            color: #64748b;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        nav a:hover {
+            color: #0ea5e9;
+            background: #f0f9ff;
+        }
+
+        /* 標示「首頁」為當前頁面 */
+        .current-page {
+            color: #0ea5e9;
+            background: #f0f9ff;
+        }
+
+        /* 3. 履歷內容樣式優化 */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: #0f172a;
+            border-left: 8px solid #0ea5e9;
+            padding-left: 20px;
+            display: inline-block;
+        }
+
+        section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border: 1px solid #f1f5f9;
+        }
+
+        h2 {
+            border-left: 5px solid #0ea5e9;
+            background: linear-gradient(90deg, #f0f9ff 0%, transparent 100%);
+            padding: 10px 15px;
+            color: #1e293b;
+            margin-top: 0;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
     <nav>
-    <a href="index.html">首頁 / 履歷</a>
-    <a href="news.html">Insurance News</a>
-    <a href="insuranceedu.html">保險知識</a>
-    <a href="papers.html">論文更新</a>
+        <strong class="current-page">首頁 / 履歷</strong>
+        <a href="news.html">Insurance News</a>
+        <a href="insuranceedu.html">保險知識</a>
+        <a href="papers.html">論文更新</a>
     </nav>
 
-    <hr>
-    
     <header>
         <h1>Rhapsodia</h1>
         <p>2027日本保險業新卒 | 網頁開發學習者</p>
@@ -28,16 +107,15 @@
 
     <section id="education">
         <h2>Educational Background</h2>
-        <p> T大學 - 商數 (2018 - 2023)</p>
-        <p> M大學 - 保險 (2025 - 2027)</p>
-
+        <p><strong>T大學</strong> - 商數 (2018 - 2023)</p>
+        <p><strong>M大學</strong> - 保險 (2025 - 2027)</p>
     </section>
 
     <section id="experience">
         <h2>工作經歷</h2>
         <ul>
             <li><strong>XX 保險公司 - Internship</strong> (2022/07 - 2023/08)
-                <br>會計部。</li>
+                <br>會計部實習，協助處理帳務核銷。</li>
         </ul>
     </section>
 
@@ -46,12 +124,15 @@
         <ul>
             <li><strong>金融證照：</strong>人身保險業務員、財產保險業務員。</li>
             <li><strong>技術技能：</strong>基礎網頁開發 (HTML/CSS)、Excel 數據分析。</li>
-            <li><strong>語言能力：</strong>TOEIC、日本語能力試験。</li>
+            <li><strong>語言能力：</strong>TOEIC、日本語能力試験 (JLPT)。</li>
         </ul>
     </section>
 
-    <hr>
-
+    <footer>
+        <p>聯絡信箱：<a href="mailto:yourname@example.com" style="color: #0ea5e9; text-decoration: none;">yourname@example.com</a></p>
+    </footer>
+</body>
+</html>
     <footer>
         <p>聯絡信箱：<a href="mailto:yourname@example.com">yourname@example.com</a></p>
     </footer>
