@@ -5,50 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>全球保險新聞監測中心</title>
     <style>
-        /* 1. 基礎設定 */
+        /* 1. 基礎設定 - 與首頁完全對齊 */
         body {
             font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
             line-height: 1.8;
-            color: #333;
+            color: #334155;
             max-width: 900px;
             margin: 0 auto;
-            padding: 40px 20px;
-            background-color: #f4f7f9;
+            padding: 0 20px 40px;
+            background-color: #f8fafc;
         }
 
-        /* 2. 導覽列 */
+        /* 2. 統一導覽列 - 修正位置與大小一致性 */
         nav {
-            text-align: right;
-            margin-bottom: 30px;
+            display: flex;             
+            justify-content: center;   
+            align-items: center;       
+            gap: 15px;                 
+            padding: 20px 0;
+            background: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            border-radius: 0 0 15px 15px;
         }
-        nav a {
-            color: #004080;
+
+        nav a, nav strong {
             text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9em;
-            transition: color 0.2s;
+            font-size: 16px;
+            color: #64748b;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-block;
         }
+
         nav a:hover {
-            color: #d9534f;
+            color: #0ea5e9;
+            background: #f0f9ff;
+        }
+
+        /* 標示「Insurance News」為當前頁面 */
+        .current-page {
+            color: #0ea5e9;
+            background: #f0f9ff;
         }
 
         /* 3. 標題與區塊設計 */
         h1 {
-            color: #002b5c;
-            border-left: 8px solid #002b5c;
-            padding-left: 15px;
-            margin-bottom: 30px;
+            color: #0f172a;
+            border-left: 8px solid #0ea5e9; /* 改為與首頁一致的藍色 */
+            padding-left: 20px;
+            margin: 40px 0 30px;
             font-size: 2em;
         }
 
         h2 {
-            color: #004080;
-            background: linear-gradient(90deg, #e9f0f7 0%, transparent 100%);
-            padding: 10px 15px;
-            border-left: 4px solid #004080;
-            border-radius: 0 6px 6px 0;
-            margin-top: 40px;
-            font-size: 1.3em;
+            color: #1e293b;
+            background: linear-gradient(90deg, #f0f9ff 0%, transparent 100%);
+            padding: 12px 15px;
+            border-left: 5px solid #0ea5e9;
+            border-radius: 0 8px 8px 0;
+            margin-top: 45px;
+            font-size: 1.4em;
             display: flex;
             align-items: center;
         }
@@ -56,9 +75,10 @@
         section {
             background: white;
             padding: 30px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border: 1px solid #f1f5f9;
         }
 
         /* 4. 新聞列表樣式 */
@@ -71,13 +91,13 @@
         .news-item {
             display: flex;
             align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #edf2f7;
+            padding: 18px 0;
+            border-bottom: 1px solid #f1f5f9;
             transition: background 0.2s;
         }
 
         .news-item:hover {
-            background-color: #fafafa;
+            background-color: #f8fafc;
         }
 
         .news-item:last-child {
@@ -87,7 +107,7 @@
         /* 5. 標籤與連結 */
         .category-tag {
             display: inline-block;
-            background-color: #002b5c;
+            background-color: #334155;
             color: white;
             padding: 2px 10px;
             border-radius: 20px;
@@ -98,7 +118,7 @@
 
         .news-link {
             text-decoration: none;
-            color: #1a56db;
+            color: #0369a1;
             font-weight: 600;
             flex: 1;
             font-size: 1.05em;
@@ -106,12 +126,12 @@
         }
 
         .news-link:hover {
-            color: #d9534f;
+            color: #0ea5e9;
             text-decoration: underline;
         }
 
         .news-date {
-            color: #a0aec0;
+            color: #94a3b8;
             font-size: 0.85em;
             margin-left: 20px;
             font-family: monospace;
@@ -120,7 +140,7 @@
         /* 6. 狀態顯示 */
         .loading {
             text-align: center;
-            color: #666;
+            color: #64748b;
             padding: 40px;
         }
 
@@ -143,10 +163,10 @@
 <body>
 
     <nav>
-    <a href="index.html">首頁 / 履歷</a>
-    <a href="news.html">Insurance News</a>
-    <a href="insuranceedu.html">保險知識</a>
-    <a href="papers.html">論文更新</a>
+        <a href="index.html">首頁 / 履歷</a>
+        <strong class="current-page">Insurance News</strong>
+        <a href="insuranceedu.html">保險知識</a>
+        <a href="papers.html">論文更新</a>
     </nav>
 
     <header>
@@ -157,8 +177,8 @@
         <div class="loading">📡 正在同步全球保險數據，請稍候...</div>
     </section>
 
-    <footer style="text-align: center; color: #718096; font-size: 0.8em; margin-top: 40px;">
-        <p>&copy; 2026 保險監測系統 | 數據來源：Nikkei News & Google News</p>
+    <footer style="text-align: center; color: #94a3b8; font-size: 0.85em; margin-top: 40px; padding: 20px; border-top: 1px solid #e2e8f0;">
+        <p>&copy; 2026 保險監測系統 | 數據來源：Yahoo News & Google News</p>
         <p>最後更新時間：每日 08:00 (台北時間)</p>
     </footer>
 
@@ -166,29 +186,26 @@
         async function fetchNews() {
             const container = document.getElementById('news-container');
             try {
-                // 使用時間戳避開瀏覽器快取
                 const response = await fetch('data/news_data.json?t=' + new Date().getTime());
-                if (!response.ok) throw new Error('無法讀取新聞 JSON 資料，請確認路徑是否正確');
+                if (!response.ok) throw new Error('無法讀取新聞資料');
                 
                 const data = await response.json();
-                container.innerHTML = ''; // 清除 Loading 狀態
+                container.innerHTML = ''; 
 
                 if (!data || data.length === 0) {
                     container.innerHTML = '<p class="loading">📭 今日暫無相關保險新聞。</p>';
                     return;
                 }
 
-                // --- 分類邏輯 ---
-                // 判斷方式：source 標籤或標題中是否含有日文字元
+                // 分類邏輯：根據 source 或是日文字元判斷
                 const japanNews = data.filter(item => 
-                    item.source === "日本新聞" || /[ぁ-んァ-ン]/.test(item.title)
+                    item.source === "日本業界動態" || /[ぁ-んァ-ン]/.test(item.title)
                 );
                 
                 const taiwanNews = data.filter(item => 
                     item.source === "台灣新聞" || (!item.source && !/[ぁ-んァ-ン]/.test(item.title))
                 );
 
-                // --- 渲染函式 ---
                 const renderGroup = (groupTitle, icon, newsItems) => {
                     if (newsItems.length === 0) return;
 
@@ -201,16 +218,11 @@
                     newsItems.forEach(item => {
                         const li = document.createElement('li');
                         li.className = 'news-item';
-
                         const tagText = item.source || "最新動態";
                         
-                        // 修正後的 HTML：移除冗餘的 onclick，確保連結行為正常
                         li.innerHTML = `
                             <span class="category-tag">${tagText}</span>
-                            <a href="${item.link}" 
-                               target="_blank" 
-                               rel="noopener noreferrer" 
-                               class="news-link">
+                            <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="news-link">
                                 ${item.title}
                             </a>
                             <span class="news-date">${item.date}</span>
@@ -222,22 +234,15 @@
                     container.appendChild(groupWrapper);
                 };
 
-                // 執行渲染
                 renderGroup("台灣保險要聞", "🇹🇼", taiwanNews);
                 renderGroup("日本保險要聞", "🇯🇵", japanNews);
 
             } catch (error) {
                 console.error('Fetch error:', error);
-                container.innerHTML = 
-                    `<div style="color:#c53030; background:#fff5f5; padding:20px; border-radius:12px; border:1px solid #feb2b2; text-align:center;">
-                        <strong>⚠️ 系統連線異常</strong><br>
-                        請確認 <code>data/news_data.json</code> 是否已正確生成並上傳至 GitHub。<br>
-                        <small style="color:#666">(錯誤訊息: ${error.message})</small>
-                    </div>`;
+                container.innerHTML = `<div style="color:#c53030; background:#fff5f5; padding:20px; border-radius:12px; border:1px solid #feb2b2; text-align:center;">
+                    <strong>⚠️ 系統連線異常</strong><br>資料尚未同步，請稍後再試。</div>`;
             }
         }
-
-        // 頁面載入後執行
         window.onload = fetchNews;
     </script>
 </body>
