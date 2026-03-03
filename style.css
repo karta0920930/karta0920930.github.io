@@ -159,3 +159,64 @@ section {
         margin: 10px 0;
     }
 }
+.visual-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    padding: 40px;
+    border-radius: 20px;
+    margin: 30px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.node {
+    flex: 0 0 180px;
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.node:hover { transform: translateY(-5px); }
+.node-icon { font-size: 2em; margin-bottom: 10px; }
+.node strong { display: block; color: #1e293b; margin-bottom: 5px; }
+.node span { font-size: 0.8em; color: #64748b; }
+
+.consumer-node { border-top: 5px solid #0ea5e9; }
+.company-node { border-top: 5px solid #334155; }
+
+.flow-container {
+    flex: 1;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.flow-line { display: flex; flex-direction: column; align-items: center; }
+.flow-line .label { font-size: 0.75em; font-weight: bold; color: #475569; margin-bottom: 5px; }
+
+.line {
+    width: 100%;
+    height: 2px;
+    background: #cbd5e1;
+    position: relative;
+}
+
+/* 繪製箭頭 */
+.premium .line::after {
+    content: '▶'; position: absolute; right: -5px; top: -10px; color: #cbd5e1;
+}
+.claim .line::before {
+    content: '◀'; position: absolute; left: -5px; top: -10px; color: #cbd5e1;
+}
+
+/* 響應式：手機版變垂直排列 */
+@media (max-width: 600px) {
+    .visual-container { flex-direction: column; gap: 30px; }
+    .flow-container { transform: rotate(90deg); margin: 20px 0; }
+}
