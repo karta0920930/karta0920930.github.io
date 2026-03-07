@@ -31,6 +31,10 @@ def get_taiwan_news():
     articles = []
     TW_BLACKLIST = ["保險套", "廣告", "發財", "色情"]
     
+    # --- 設定門檻：標題必須出現「保險」幾次以上 ---
+    REQUIRED_COUNT = 3  # 如果要更嚴格，可以改成 2
+    # ------------------------------------------
+
     try:
         response = requests.get(url, headers=HEADERS, timeout=15)
         soup = BeautifulSoup(response.text, "html.parser")
@@ -45,8 +49,13 @@ def get_taiwan_news():
                 # 清理標題來源文字
                 clean_title = raw_title.split(' - ')[0].split(' | ')[0].split(' (')[0]
 
-                # 過濾黑名單與短標題
+                # 1. 過濾黑名單
                 if any(word in clean_title for word in TW_BLACKLIST):
+                    continue
+
+                # 2. 關鍵字頻率檢查：計算「保險」出現的次數
+                # 注意：次數越多，過濾越嚴格，相對的新聞量會變少
+                if clean_title.count("保險") < REQUIRED_COUNT:
                     continue
 
                 if href and len(clean_title) > 10:
@@ -63,13 +72,13 @@ def get_taiwan_news():
             if len(articles) >= 10:
                 break
                 
-        print(f"✅ 台灣新聞抓取完成，共 {len(articles)} 則。")
+        print(f"✅ 台灣新聞抓取完成，符合門檻共 {len(articles)} 則。")
     except Exception as e:
         print(f"❌ 台灣抓取錯誤: {e}")
     return articles
 
 # =========================
-# 3. 爬取日本新聞 (Google News RSS 穩定版)
+# 3. 爬取日本新聞 (Google News RSS) - 增強過濾版
 # =========================
 def get_japan_news():
     print("🔎 正在過濾日本保險業深度研究與專業新聞...")
@@ -82,10 +91,13 @@ def get_japan_news():
     
     articles = []
     PROFESSIONAL_BLACKLIST = ["逮捕", "避妊", "事件"]
+    
+    # --- 設定門檻：標題必須出現「保険」幾次以上 ---
+    REQUIRED_COUNT = 3
+    # ------------------------------------------
 
     try:
         response = requests.get(rss_url, headers=HEADERS, timeout=15)
-        # 關鍵：使用 html.parser 並配合 next_sibling 抓取連結
         soup = BeautifulSoup(response.content, "html.parser")
         items = soup.find_all("item")
         
@@ -93,7 +105,6 @@ def get_japan_news():
             title_tag = item.find("title")
             title = title_tag.get_text() if title_tag else "無標題"
             
-            # 穩定抓取 Google RSS 連結
             link = ""
             link_tag = item.find("link")
             if link_tag:
@@ -104,10 +115,15 @@ def get_japan_news():
             if not link or not link.startswith("http"):
                 continue
 
+            # 1. 黑名單過濾
             if any(word in title for word in PROFESSIONAL_BLACKLIST):
                 continue
+
+            # 2. 頻率檢查：計算日文「保険」出現次數
+            if title.count("保険") < REQUIRED_COUNT:
+                continue
                 
-            # 從業人員專業詞過濾
+            # 3. 從業人員專業詞過濾
             pro_filters = ["発行", "調査", "発表", "開始", "導入", "DX", "戦略", "経営"]
             if any(word in title for word in pro_filters):
                 articles.append({
@@ -120,7 +136,7 @@ def get_japan_news():
             if len(articles) >= 10: 
                 break
                 
-        print(f"✅ 日本新聞篩選完成，共找到 {len(articles)} 則。")
+        print(f"✅ 日本新聞篩選完成，符合門檻共找到 {len(articles)} 則。")
     except Exception as e:
         print(f"❌ 日本新聞抓取失敗: {e}")
     return articles
