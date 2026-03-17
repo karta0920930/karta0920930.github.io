@@ -81,64 +81,67 @@ def get_taiwan_news():
 # 3. 爬取日本新聞 (Google News RSS) - 增強過濾版
 # =========================
 def get_japan_news():
-    print("🔎 正在過濾日本保險業深度研究與專業新聞...")
-    keywords = [
-        '"保険業界"', '"ファクトブック"', '"意識調査"', 
-        '"中期経営計画"', '"新商品発表"', '"金融庁 監督"'
-    ]
-    query = " OR ".join(keywords)
-    rss_url = f"https://news.google.com/rss/search?q={query}&hl=ja&gl=JP&ceid=JP%3Aja"
-    
+    print("🔎 正在從專業媒體 (日經/新日本) 獲取情報...")
     articles = []
-    PROFESSIONAL_BLACKLIST = ["逮捕", "避妊", "事件"]
     
-    # --- 設定門檻：標題必須出現「保険」幾次以上 ---
-    REQUIRED_COUNT = 3
-    # ------------------------------------------
-
+    # --- 來源 1: 新日本保險新聞 (業界最專業) ---
     try:
-        response = requests.get(rss_url, headers=HEADERS, timeout=15)
-        soup = BeautifulSoup(response.content, "html.parser")
-        items = soup.find_all("item")
+        shinnichi_url = "https://www.shinnichi.com/"
+        res = requests.get(shinnichi_url, headers=HEADERS, timeout=15)
+        soup = BeautifulSoup(res.text, "html.parser")
         
-        for item in items:
-            title_tag = item.find("title")
-            title = title_tag.get_text() if title_tag else "無標題"
-            
-            link = ""
-            link_tag = item.find("link")
-            if link_tag:
-                link = link_tag.get_text().strip()
-                if not link and link_tag.next_sibling:
-                    link = str(link_tag.next_sibling).strip()
-            
-            if not link or not link.startswith("http"):
-                continue
-
-            # 1. 黑名單過濾
-            if any(word in title for word in PROFESSIONAL_BLACKLIST):
-                continue
-
-            # 2. 頻率檢查：計算日文「保険」出現次數
-            if title.count("保険") < REQUIRED_COUNT:
-                continue
+        # 抓取該網站最新消息列表 (通常在 .news_list 或 dl dt 結構中)
+        # 注意：此處需根據該網站當前 HTML 結構微調
+        news_items = soup.select('.news_list dl') 
+        
+        for item in news_items:
+            title_tag = item.find('a')
+            date_tag = item.find('dt') # 抓取日期
+            if title_tag:
+                title = title_tag.get_text(strip=True)
+                link = "https://www.shinnichi.com" + title_tag.get('href', '')
                 
-            # 3. 從業人員專業詞過濾
-            pro_filters = ["発行", "調査", "発表", "開始", "導入", "DX", "戦略", "経営"]
-            if any(word in title for word in pro_filters):
-                articles.append({
-                    "title": title,
-                    "link": link,
-                    "date": TODAY_STR,
-                    "source": "日本業界動態"
-                })
-
-            if len(articles) >= 10: 
-                break
-                
-        print(f"✅ 日本新聞篩選完成，符合門檻共找到 {len(articles)} 則。")
+                # 關鍵字過濾：確保標題包含「保険」
+                if "保険" in title:
+                    articles.append({
+                        "title": title,
+                        "link": link,
+                        "date": date_tag.get_text(strip=True) if date_tag else TODAY_STR,
+                        "source": "新日本保険新聞"
+                    })
+            if len(articles) >= 5: break # 先取 5 則
     except Exception as e:
-        print(f"❌ 日本新聞抓取失敗: {e}")
+        print(f"❌ 新日本保險新聞抓取失敗: {e}")
+
+    # --- 來源 2: 日経新聞 (金融版) ---
+    try:
+        # 日經搜尋「保険業界」的結果頁
+        nikkei_url = "https://www.nikkei.com/search?keyword=%E4%BF%9D%E9%99%BA%E6%A5%AD%E7%95%8C"
+        res = requests.get(nikkei_url, headers=HEADERS, timeout=15)
+        soup = BeautifulSoup(res.text, "html.parser")
+        
+        # 日經的新聞標題通常在 h3 或特定 class 中
+        titles = soup.find_all('h3')
+        
+        for t in titles:
+            link_tag = t.find('a')
+            if link_tag:
+                title = link_tag.get_text(strip=True)
+                href = link_tag.get('href', '')
+                
+                # 過濾：保險字眼必須出現，且排除付費牆標記(如有)
+                if "保険" in title and "https" in href:
+                    articles.append({
+                        "title": title,
+                        "link": href,
+                        "date": TODAY_STR,
+                        "source": "日本経済新聞"
+                    })
+            if len(articles) >= 10: break
+    except Exception as e:
+        print(f"❌ 日經新聞抓取失敗: {e}")
+
+    print(f"✅ 專業新聞篩選完成，共找到 {len(articles)} 則。")
     return articles
 
 # =========================
