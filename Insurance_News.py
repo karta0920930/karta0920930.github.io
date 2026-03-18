@@ -124,7 +124,7 @@ def get_japan_news():
         
         res = requests.get(rss_url, headers=HEADERS, timeout=12)
         # RSS 解析建議使用 "xml" 或 "html.parser"
-        soup = BeautifulSoup(res.content, "xml") 
+     　 soup = BeautifulSoup(res.content, "html.parser")
         items = soup.find_all("item")
         
         for item in items:
