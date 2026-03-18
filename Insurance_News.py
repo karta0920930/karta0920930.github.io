@@ -81,67 +81,53 @@ def get_taiwan_news():
 # 3. 爬取日本新聞 (Google News RSS) - 增強過濾版
 # =========================
 def get_japan_news():
-    print("🔎 正在從專業媒體 (日經/新日本) 獲取情報...")
+    print("🔎 正在獲取日本專業情報...")
     articles = []
+    # 擴展關鍵字清單
+    JP_TARGETS = ["保険", "生保", "損保", "アクチュアリー", "料率", "自動運転", "気候変動"]
     
-    # --- 來源 1: 新日本保險新聞 (業界最專業) ---
+    # 1. 新日本保険新聞
     try:
-        shinnichi_url = "https://www.shinnichi.com/"
-        res = requests.get(shinnichi_url, headers=HEADERS, timeout=15)
+        url = "https://www.shinnichi.com/"
+        res = requests.get(url, headers=HEADERS, timeout=10)
         soup = BeautifulSoup(res.text, "html.parser")
         
-        # 抓取該網站最新消息列表 (通常在 .news_list 或 dl dt 結構中)
-        # 注意：此處需根據該網站當前 HTML 結構微調
-        news_items = soup.select('.news_list dl') 
-        
-        for item in news_items:
-            title_tag = item.find('a')
-            date_tag = item.find('dt') # 抓取日期
-            if title_tag:
-                title = title_tag.get_text(strip=True)
-                link = "https://www.shinnichi.com" + title_tag.get('href', '')
-                
-                # 關鍵字過濾：確保標題包含「保険」
-                if "保険" in title:
-                    articles.append({
-                        "title": title,
-                        "link": link,
-                        "date": date_tag.get_text(strip=True) if date_tag else TODAY_STR,
-                        "source": "新日本保険新聞"
-                    })
-            if len(articles) >= 5: break # 先取 5 則
-    except Exception as e:
-        print(f"❌ 新日本保險新聞抓取失敗: {e}")
+        # 抓取所有連結，只要文字包含關鍵字就收
+        for a_tag in soup.find_all("a"):
+            title = a_tag.get_text(strip=True)
+            href = a_tag.get("href", "")
+            
+            # 只要標題長度夠，且包含任一關鍵字
+            if len(title) > 10 and any(kw in title for kw in JP_TARGETS):
+                link = href if href.startswith("http") else "https://www.shinnichi.com" + href
+                articles.append({
+                    "title": title,
+                    "link": link,
+                    "date": TODAY_STR,
+                    "source": "新日本保険新聞"
+                })
+            if len(articles) >= 5: break
+    except: pass
 
-    # --- 來源 2: 日経新聞 (金融版) ---
+    # 2. 日経新聞 (改用 RSS 比較穩定)
+    # 如果直接爬網站被擋，建議改用 Google News 搜尋 Nikkei 的結果
     try:
-        # 日經搜尋「保険業界」的結果頁
-        nikkei_url = "https://www.nikkei.com/search?keyword=%E4%BF%9D%E9%99%BA%E6%A5%AD%E7%95%8C"
-        res = requests.get(nikkei_url, headers=HEADERS, timeout=15)
-        soup = BeautifulSoup(res.text, "html.parser")
-        
-        # 日經的新聞標題通常在 h3 或特定 class 中
-        titles = soup.find_all('h3')
-        
-        for t in titles:
-            link_tag = t.find('a')
-            if link_tag:
-                title = link_tag.get_text(strip=True)
-                href = link_tag.get('href', '')
-                
-                # 過濾：保險字眼必須出現，且排除付費牆標記(如有)
-                if "保険" in title and "https" in href:
-                    articles.append({
-                        "title": title,
-                        "link": href,
-                        "date": TODAY_STR,
-                        "source": "日本経済新聞"
-                    })
+        # 搜尋關鍵字：保険 site:nikkei.com
+        rss_url = "https://news.google.com/rss/search?q=%E4%BF%9D%E9%99%BA+site%3Anikkei.com&hl=ja&gl=JP&ceid=JP%3Aja"
+        res = requests.get(rss_url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(res.content, "xml") # RSS 通常是 XML 格式
+        for item in soup.find_all("item"):
+            title = item.title.text
+            link = item.link.text
+            articles.append({
+                "title": title.split(" - ")[0], # 去掉後面的媒體名
+                "link": link,
+                "date": TODAY_STR,
+                "source": "日本経済新聞"
+            })
             if len(articles) >= 10: break
-    except Exception as e:
-        print(f"❌ 日經新聞抓取失敗: {e}")
+    except: pass
 
-    print(f"✅ 專業新聞篩選完成，共找到 {len(articles)} 則。")
     return articles
 
 # =========================
